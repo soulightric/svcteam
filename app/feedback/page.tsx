@@ -426,13 +426,13 @@ export default function FeedbackPage() {
         <div className="relative max-w-6xl mx-auto px-6 py-5">
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center" style={{ backgroundColor: "#0d9488" }}>
+              <div className="w-9 h-9 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center" style={{ backgroundColor: "transparent" }}>
                 <Image src="/logo.png" alt="Logo" width={36} height={36} className="w-full h-full object-contain"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
               </div>
               <div>
                 <p className="text-[10px] font-medium text-teal-400 uppercase tracking-widest">Portal Resmi</p>
-                <h1 className="text-white font-bold text-base leading-none serif">SiAduan Kampus</h1>
+                <h1 className="text-white font-bold text-base leading-none serif">SVC</h1>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -456,7 +456,7 @@ export default function FeedbackPage() {
 
           <div className="max-w-2xl">
             <h2 className="serif text-2xl md:text-3xl font-normal text-white leading-tight mb-2">
-              Sistem Pengaduan <span style={{ color: "#fcd34d" }}>Fasilitas Kampus</span>
+              Student Voice <span style={{ color: "#fcd34d" }}>ITH Campus</span>
             </h2>
             <p className="text-slate-400 text-xs leading-relaxed">
               Sampaikan masukan terkait fasilitas dan pelayanan kampus. Setiap aduan akan ditindaklanjuti.
