@@ -1,4 +1,4 @@
-# SiAduan Kampus
+# Student Voice ITH Campus
 
 Platform pengaduan dan feedback fasilitas kampus berbasis web. Mahasiswa yang terdaftar dapat menyampaikan aduan terkait fasilitas kampus, dan admin dapat mengelola serta merespons setiap aduan.
 
@@ -58,7 +58,7 @@ Akademik, Perpustakaan, Internet & Teknologi, Kantin, Gedung & Ruang Kelas, Keam
 ## Struktur Direktori
 
 ```
-feedback-kampus/
+svc.cujud.xyz/
 ├── app/
 │   ├── page.tsx                        # Halaman publik (statistik)
 │   ├── layout.tsx
@@ -106,15 +106,15 @@ feedback-kampus/
 ### 1. Clone dan install dependencies
 
 ```bash
-git clone https://github.com/username/nama-repo.git
-cd feedback-kampus
+git clone https://github.com/soulightric/svc.cujud.xyz.git
+cd svc.cujud.xyz
 npm install
 ```
 
 ### 2. Konfigurasi environment variables
 
 ```bash
-cp .env.example .env
+cp .env.example .env # or add .env
 ```
 
 Isi `.env` dengan nilai yang sesuai:
