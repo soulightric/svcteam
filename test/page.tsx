@@ -427,13 +427,13 @@ export default function FeedbackPage() {
         <div className="relative max-w-6xl mx-auto px-6 py-5">
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center" style={{ backgroundColor: "transparent" }}>
+              <div className="w-9 h-9 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center" style={{ backgroundColor: "#0d9488" }}>
                 <Image src="/logo.png" alt="Logo" width={36} height={36} className="w-full h-full object-contain"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
               </div>
               <div>
                 <p className="text-[10px] font-medium text-teal-400 uppercase tracking-widest">Portal Resmi</p>
-                <h1 className="text-white font-bold text-base leading-none serif">SVC</h1>
+                <h1 className="text-white font-bold text-base leading-none serif">SiAduan Kampus</h1>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -458,7 +458,7 @@ export default function FeedbackPage() {
 
           <div className="max-w-2xl">
             <h2 className="serif text-2xl md:text-3xl font-normal text-white leading-tight mb-2">
-              Student Voice <span style={{ color: "#fcd34d" }}>ITH Campus</span>
+              Sistem Pengaduan <span style={{ color: "#fcd34d" }}>Fasilitas Kampus</span>
             </h2>
             <p className="text-slate-400 text-xs leading-relaxed">
               Sampaikan masukan terkait fasilitas dan pelayanan kampus. Setiap aduan akan ditindaklanjuti.
@@ -648,7 +648,7 @@ export default function FeedbackPage() {
 
       <footer className="border-t border-slate-200 mt-12">
         <div className="max-w-6xl mx-auto px-6 py-5 flex flex-col md:flex-row items-center justify-between gap-2">
-          <p className="text-xs text-slate-400">© 2026 - Student Voice Campus backup by <a className="text-emerald-500" href="https://etherthink.cujud.xyz/" target="__blank">Etherthink</a></p>
+          <p className="text-xs text-slate-400">© 2025 SiAduan Kampus</p>
           <p className="text-xs text-slate-400">Aduan bersifat rahasia dan diproses dalam 3–5 hari kerja</p>
         </div>
       </footer>
