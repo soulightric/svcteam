@@ -24,6 +24,7 @@ model Feedback {
   deskripsi   String
   status      String     @default("menunggu")
   balasan     String?
+  lampiran    String?    // URL foto dari Cloudinary
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   mahasiswaId String
