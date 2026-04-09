@@ -26,13 +26,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Token tidak valid" }, { status: 401 });
     }
 
-    const { kategori, judul, deskripsi } = await req.json();
+    const { kategori, judul, deskripsi, lampiran } = await req.json();
     if (!kategori || !judul || !deskripsi) {
       return NextResponse.json({ error: "Semua field wajib diisi" }, { status: 400 });
     }
 
     const feedback = await prisma.feedback.create({
-      data: { kategori, judul, deskripsi, mahasiswaId: payload.id },
+      data: { kategori, judul, deskripsi, mahasiswaId: payload.id, ...(lampiran && { lampiran }) },
       include: { mahasiswa: { select: { nama: true, nim: true } } },
     });
 
