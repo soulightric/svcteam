@@ -7,7 +7,7 @@ import {
   FlaskConical, Bus, CheckCircle2, Clock3, XCircle, MessageSquare,
   Hash, CalendarDays, RefreshCw, AlertCircle, ChevronLeft,
   Send, Inbox, Users, TrendingUp, ShieldAlert, X, Trash2, LogOut, LayoutDashboard,
-  UserPlus, Eye, EyeOff, KeyRound, Menu,
+  UserPlus, Eye, EyeOff, KeyRound, Menu, Search, ImageIcon,
 } from "lucide-react";
 
 type StatusType = "menunggu" | "diterima" | "ditolak";
