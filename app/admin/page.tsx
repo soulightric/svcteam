@@ -7,7 +7,7 @@ import {
   FlaskConical, Bus, CheckCircle2, Clock3, XCircle, MessageSquare,
   Hash, CalendarDays, RefreshCw, AlertCircle, ChevronLeft,
   Send, Inbox, Users, TrendingUp, ShieldAlert, X, Trash2, LogOut, LayoutDashboard,
-  UserPlus, Eye, EyeOff, KeyRound, Menu, Search,
+  UserPlus, Eye, EyeOff, KeyRound, Menu,
 } from "lucide-react";
 
 type StatusType = "menunggu" | "diterima" | "ditolak";
@@ -17,6 +17,7 @@ interface Feedback {
   id: string; kategori: string; judul: string; deskripsi: string;
   status: StatusType; createdAt: string; balasan?: string | null;
   mahasiswa: { nama: string; nim: string };
+  lampiran?: string | null;
 }
 interface Mahasiswa {
   id: string; nim: string; nama: string; createdAt: string;
@@ -108,6 +109,23 @@ function DetailPanel({ fb, onClose, onUpdate }: {
             <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Deskripsi</p>
             <p className="text-sm text-slate-700 leading-relaxed">{fb.deskripsi}</p>
           </div>
+
+          {fb.lampiran && (
+            <div className="rounded-xl overflow-hidden border border-slate-200">
+              <div className="px-3 py-2 flex items-center justify-between" style={{ backgroundColor: "#f8f7f4" }}>
+                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <ImageIcon size={11} />Foto Lampiran
+                </p>
+                <a href={fb.lampiran} target="_blank" rel="noopener noreferrer"
+                  className="text-[10px] font-medium text-teal-600 hover:text-teal-700 flex items-center gap-1">
+                  <Eye size={11} />Lihat penuh
+                </a>
+              </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={fb.lampiran} alt="Lampiran" className="w-full max-h-48 object-cover cursor-pointer"
+                onClick={() => window.open(fb.lampiran!, "_blank")} />
+            </div>
+          )}
 
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Ubah Status</p>
