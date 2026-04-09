@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   BookOpen, GraduationCap, Wifi, Utensils, Building2, ShieldCheck,
@@ -19,6 +19,7 @@ interface Feedback {
   id: string; kategori: string; judul: string; deskripsi: string;
   status: StatusType; createdAt: string; balasan?: string | null;
   mahasiswa: Mahasiswa; mahasiswaId: string;
+  lampiran?: string | null;
 }
 
 const KATEGORI_LIST = [
@@ -223,6 +224,22 @@ function FeedbackCard({ fb, delay, currentUserId, onEdit, onDelete }: {
               <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Deskripsi Lengkap</p>
               <p className="text-sm text-slate-700 leading-relaxed">{fb.deskripsi}</p>
             </div>
+            {fb.lampiran && (
+              <div className="rounded-xl overflow-hidden border border-slate-200">
+                <div className="px-3 py-2 flex items-center justify-between" style={{ backgroundColor: "#f8f7f4" }}>
+                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <ImageIcon size={11} />Foto Lampiran
+                  </p>
+                  <a href={fb.lampiran} target="_blank" rel="noopener noreferrer"
+                    className="text-[10px] font-medium text-teal-600 hover:text-teal-700 flex items-center gap-1">
+                    <Eye size={11} />Lihat penuh
+                  </a>
+                </div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={fb.lampiran} alt="Lampiran" className="w-full max-h-56 object-cover cursor-pointer"
+                  onClick={() => window.open(fb.lampiran!, "_blank")} />
+              </div>
+            )}
             {fb.balasan && (
               <div className="rounded-xl p-3" style={{
                 backgroundColor: fb.status === "diterima" ? "#d1fae5" : "#fee2e2",
@@ -248,11 +265,15 @@ function FeedbackCard({ fb, delay, currentUserId, onEdit, onDelete }: {
 }
 
 // ── FeedbackForm ──────────────────────────────────────────────────────────────
-function FeedbackForm({ onSubmit }: { onSubmit: (data: { kategori: string; judul: string; deskripsi: string }) => Promise<void> }) {
+function FeedbackForm({ onSubmit }: { onSubmit: (data: { kategori: string; judul: string; deskripsi: string; lampiran?: string }) => Promise<void> }) {
   const [form, setForm] = useState({ kategori: "", judul: "", deskripsi: "" });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const validate = () => {
     const e: Record<string, string> = {};
@@ -262,16 +283,50 @@ function FeedbackForm({ onSubmit }: { onSubmit: (data: { kategori: string; judul
     return e;
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(f.type)) {
+      setErrors((prev) => ({ ...prev, file: "Hanya JPG, PNG, atau WebP" }));
+      return;
+    }
+    if (f.size > 5 * 1024 * 1024) {
+      setErrors((prev) => ({ ...prev, file: "Ukuran maksimal 5 MB" }));
+      return;
+    }
+    setFile(f);
+    setErrors((prev) => ({ ...prev, file: "" }));
+    const reader = new FileReader();
+    reader.onload = () => setPreview(reader.result as string);
+    reader.readAsDataURL(f);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
     setLoading(true);
     try {
-      await onSubmit(form);
+      let lampiranUrl: string | undefined;
+      // Upload foto dulu jika ada
+      if (file) {
+        setUploading(true);
+        const fd = new FormData();
+        fd.append("file", file);
+        const res = await fetch("/api/upload", { method: "POST", body: fd });
+        const data = await res.json();
+        if (!res.ok) { setErrors((prev) => ({ ...prev, file: data.error })); setLoading(false); setUploading(false); return; }
+        lampiranUrl = data.url;
+        setUploading(false);
+      }
+      await onSubmit({ ...form, lampiran: lampiranUrl });
       setSubmitted(true);
-      setTimeout(() => { setSubmitted(false); setForm({ kategori: "", judul: "", deskripsi: "" }); setErrors({}); }, 2500);
-    } finally { setLoading(false); }
+      setTimeout(() => {
+        setSubmitted(false);
+        setForm({ kategori: "", judul: "", deskripsi: "" });
+        setFile(null); setPreview(null); setErrors({});
+      }, 2500);
+    } finally { setLoading(false); setUploading(false); }
   };
 
   const set = (key: string, val: string) => { setForm((f) => ({ ...f, [key]: val })); setErrors((e) => ({ ...e, [key]: "" })); };
@@ -325,11 +380,58 @@ function FeedbackForm({ onSubmit }: { onSubmit: (data: { kategori: string; judul
         </div>
       </div>
 
-      <button type="submit" disabled={loading}
+      {/* Upload foto */}
+      <div>
+        <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">
+          Foto Lampiran <span className="text-slate-400 font-normal normal-case">(opsional, maks 5 MB)</span>
+        </label>
+        <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp"
+          onChange={handleFileChange} className="hidden" />
+
+        {!preview ? (
+          <button type="button" onClick={() => fileRef.current?.click()}
+            className="w-full flex flex-col items-center justify-center gap-2 py-5 rounded-xl border-2 border-dashed transition-all hover:border-teal-400 hover:bg-teal-50"
+            style={{ borderColor: "#e2e8f0" }}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#f1f5f9" }}>
+              <ImageIcon size={20} className="text-slate-400" />
+            </div>
+            <div className="text-center">
+              <p className="text-xs font-medium text-slate-600">Klik untuk pilih foto</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">JPG, PNG — Maks 5 MB</p>
+            </div>
+          </button>
+        ) : (
+          <div className="relative rounded-xl overflow-hidden border border-slate-200">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={preview} alt="Preview" className="w-full h-40 object-cover" />
+            <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+              <button type="button" onClick={() => window.open(preview!, "_blank")}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white"
+                style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+                <Eye size={13} />Lihat
+              </button>
+              <button type="button" onClick={() => { setFile(null); setPreview(null); if (fileRef.current) fileRef.current.value = ""; }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white"
+                style={{ backgroundColor: "rgba(239,68,68,0.7)" }}>
+                <Trash2 size={13} />Hapus
+              </button>
+            </div>
+            <div className="absolute bottom-0 left-0 right-0 px-3 py-1.5 text-[10px] text-white font-medium truncate"
+              style={{ backgroundColor: "rgba(0,0,0,0.4)" }}>
+              {file?.name}
+            </div>
+          </div>
+        )}
+        {errors.file && <p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertCircle size={11} />{errors.file}</p>}
+      </div>
+
+      <button type="submit" disabled={loading || uploading}
         className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-60"
         style={{ backgroundColor: "#0f1b2d", color: "white" }}>
-        {loading ? <RefreshCw size={15} className="animate-spin" /> : <Send size={15} />}
-        {loading ? "Mengirim..." : "Kirim Aduan"}
+        {uploading ? <Upload size={15} className="animate-bounce" />
+          : loading ? <RefreshCw size={15} className="animate-spin" />
+          : <Send size={15} />}
+        {uploading ? "Mengupload foto..." : loading ? "Mengirim..." : "Kirim Aduan"}
       </button>
     </form>
   );
@@ -368,7 +470,7 @@ export default function FeedbackPage() {
 
   useEffect(() => { fetchFeedbacks(); }, [fetchFeedbacks]);
 
-  const handleNewFeedback = async (data: { kategori: string; judul: string; deskripsi: string }) => {
+  const handleNewFeedback = async (data: { kategori: string; judul: string; deskripsi: string; lampiran?: string }) => {
     const res = await fetch("/api/feedback", {
       method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data),
     });
@@ -427,13 +529,13 @@ export default function FeedbackPage() {
         <div className="relative max-w-6xl mx-auto px-6 py-5">
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center" style={{ backgroundColor: "transparent" }}>
+              <div className="w-9 h-9 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center" style={{ backgroundColor: "#0d9488" }}>
                 <Image src="/logo.png" alt="Logo" width={36} height={36} className="w-full h-full object-contain"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
               </div>
               <div>
                 <p className="text-[10px] font-medium text-teal-400 uppercase tracking-widest">Portal Resmi</p>
-                <h1 className="text-white font-bold text-base leading-none serif">SVC</h1>
+                <h1 className="text-white font-bold text-base leading-none serif">SiAduan Kampus</h1>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -458,7 +560,7 @@ export default function FeedbackPage() {
 
           <div className="max-w-2xl">
             <h2 className="serif text-2xl md:text-3xl font-normal text-white leading-tight mb-2">
-              Student Voice <span style={{ color: "#fcd34d" }}>ITH Campus</span>
+              Sistem Pengaduan <span style={{ color: "#fcd34d" }}>Fasilitas Kampus</span>
             </h2>
             <p className="text-slate-400 text-xs leading-relaxed">
               Sampaikan masukan terkait fasilitas dan pelayanan kampus. Setiap aduan akan ditindaklanjuti.
@@ -648,7 +750,7 @@ export default function FeedbackPage() {
 
       <footer className="border-t border-slate-200 mt-12">
         <div className="max-w-6xl mx-auto px-6 py-5 flex flex-col md:flex-row items-center justify-between gap-2">
-          <p className="text-xs text-slate-400">© 2026 - Student Voice Campus backup by <a className="text-emerald-500" href="https://etherthink.cujud.xyz/" target="__blank">Etherthink</a></p>
+          <p className="text-xs text-slate-400">© 2025 SiAduan Kampus</p>
           <p className="text-xs text-slate-400">Aduan bersifat rahasia dan diproses dalam 3–5 hari kerja</p>
         </div>
       </footer>
