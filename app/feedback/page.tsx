@@ -7,7 +7,7 @@ import {
   FlaskConical, Bus, CheckCircle2, Clock3, XCircle, ChevronDown,
   Send, Inbox, Filter, X, CalendarDays, MessageSquare, Hash,
   TrendingUp, AlertCircle, RefreshCw, LogOut, User, Search,
-  Pencil, Trash2,
+  Pencil, Trash2, ImageIcon, Upload, Eye,
 } from "lucide-react";
 import Image from "next/image";
 import NotificationBell from "@/app/components/NotificationBell";
