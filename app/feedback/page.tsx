@@ -175,14 +175,14 @@ function FeedbackCard({ fb, delay, currentUserId, onEdit, onDelete }: {
       <div className="p-5">
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
               style={{ backgroundColor: kat.color + "18", color: kat.color }}><KatIcon size={18} /></div>
             <div className="min-w-0">
               <p className="text-[11px] font-medium text-slate-400 uppercase tracking-wider">{kat.label}</p>
               <h3 className="font-semibold text-slate-800 text-sm leading-tight truncate">{fb.judul}</h3>
             </div>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             <StatusBadge status={fb.status} />
             {/* Edit/Delete — hanya muncul jika pemilik & masih menunggu */}
             {canEdit && (
@@ -529,7 +529,7 @@ export default function FeedbackPage() {
         <div className="relative max-w-6xl mx-auto px-6 py-5">
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center" style={{ backgroundColor: "transparent" }}>
+              <div className="w-9 h-9 rounded-xl overflow-hidden shrink-0 flex items-center justify-center" style={{ backgroundColor: "transparent" }}>
                 <Image src="/logo.png" alt="Logo" width={36} height={36} className="w-full h-full object-contain"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
               </div>
@@ -707,7 +707,7 @@ export default function FeedbackPage() {
 
             {error && (
               <div className="rounded-2xl border border-red-100 bg-red-50 p-4 mb-4 flex items-start gap-3">
-                <AlertCircle size={16} className="text-red-500 flex-shrink-0 mt-0.5" />
+                <AlertCircle size={16} className="text-red-500 shrink-0 mt-0.5" />
                 <p className="text-sm text-red-700">{error}</p>
               </div>
             )}
@@ -750,7 +750,7 @@ export default function FeedbackPage() {
 
       <footer className="border-t border-slate-200 mt-12">
         <div className="max-w-6xl mx-auto px-6 py-5 flex flex-col md:flex-row items-center justify-between gap-2">
-          <p className="text-xs text-slate-400">© 2026 Student Voice Campus</p>
+          <p className="text-xs text-slate-400">© 2026 SVC - Student Voice Campus backup by <a className="text-emerald-500" href="http://etherthink.cujud.xyz" target="_blank" rel="noopener noreferrer">Etherthink</a> </p>
           <p className="text-xs text-slate-400">Aduan bersifat rahasia dan diproses dalam 3–5 hari kerja</p>
         </div>
       </footer>
