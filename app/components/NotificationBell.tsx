@@ -116,7 +116,7 @@ export default function NotificationBell() {
         {/* Red dot */}
         {unreadCount > 0 && (
           <span
-            className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full flex items-center justify-center text-[9px] font-bold text-white animate-fade-up"
+            className="absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full flex items-center justify-center text-[9px] font-bold text-white animate-fade-up"
             style={{ backgroundColor: "#ef4444", lineHeight: 1 }}
           >
             {unreadCount > 9 ? "9+" : unreadCount}
@@ -127,7 +127,7 @@ export default function NotificationBell() {
       {/* Dropdown */}
       {open && (
         <div
-          className="fixed w-80 rounded-2xl shadow-2xl overflow-hidden z-[9999] animate-fade-up"
+          className="fixed w-60 rounded-2xl shadow-2xl overflow-hidden z-9999 animate-fade-up"
           style={{
             top: dropdownPos.top,
             right: dropdownPos.right,
@@ -172,7 +172,7 @@ export default function NotificationBell() {
                       className="px-4 py-3 flex items-start gap-3 group transition-colors hover:bg-slate-50 relative"
                       style={{ backgroundColor: isRead ? "white" : isDiterima ? "#f0fdf4" : "#fff5f5" }}>
                       {/* Icon status */}
-                      <div className="flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center mt-0.5"
+                      <div className="shrink-0 w-8 h-8 rounded-xl flex items-center justify-center mt-0.5"
                         style={{ backgroundColor: isDiterima ? "#d1fae5" : "#fee2e2" }}>
                         {isDiterima
                           ? <CheckCircle2 size={16} className="text-emerald-600" />
@@ -188,7 +188,7 @@ export default function NotificationBell() {
                             {isDiterima ? "✓ Aduan Diterima" : "✗ Aduan Ditolak"}
                           </span>
                           {!isRead && (
-                            <span className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                            <span className="w-1.5 h-1.5 rounded-full shrink-0"
                               style={{ backgroundColor: "#ef4444" }} />
                           )}
                         </div>
@@ -204,7 +204,7 @@ export default function NotificationBell() {
                       {/* Close button */}
                       <button
                         onClick={(e) => handleClearOne(n.id, e)}
-                        className="flex-shrink-0 p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-all text-slate-300 hover:text-slate-500 hover:bg-slate-100">
+                        className="shrink-0 p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-all text-slate-300 hover:text-slate-500 hover:bg-slate-100">
                         <X size={11} />
                       </button>
                     </div>
