@@ -46,11 +46,11 @@ const PIE_COLORS = ["#f59e0b", "#10b981", "#ef4444"];
 function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: { name: string; value: number; color: string }[]; label?: string }) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-xl shadow-lg p-3 text-xs" style={{ backgroundColor: "#0f1b2d", border: "1px solid rgba(255,255,255,0.1)" }}>
+    <div className="rounded shadow-lg p-3 text-xs" style={{ backgroundColor: "#0f1b2d", border: "1px solid rgba(255,255,255,0.1)" }}>
       <p className="font-semibold text-white mb-2">{label}</p>
       {payload.map((p) => (
         <div key={p.name} className="flex items-center gap-2 mb-1">
-          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color }} />
+          <span className="w-2 h-2 rounded" style={{ backgroundColor: p.color }} />
           <span className="text-slate-300">{p.name}:</span>
           <span className="text-white font-semibold">{p.value}</span>
         </div>
@@ -66,11 +66,11 @@ function StatCard({ label, value, sub, color, bg, border, icon: Icon, suffix = "
   bg: string; border: string; icon: React.ElementType; suffix?: string;
 }) {
   return (
-    <div className="rounded-2xl p-5 border transition-transform hover:-translate-y-0.5"
+    <div className="rounded p-5 border transition-transform hover:-translate-y-0.5"
       style={{ backgroundColor: bg, borderColor: border }}>
       <div className="flex items-start justify-between mb-3">
         <p className="text-xs font-semibold uppercase tracking-wider" style={{ color }}>{label}</p>
-        <div className="w-8 h-8 rounded-xl flex items-center justify-center" style={{ backgroundColor: color + "20" }}>
+        <div className="w-8 h-8 rounded flex items-center justify-center" style={{ backgroundColor: color + "20" }}>
           <Icon size={16} style={{ color }} />
         </div>
       </div>
@@ -126,7 +126,7 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: "#0d9488" }}>
+              <div className="w-7 h-7 rounded flex items-center justify-center" style={{ backgroundColor: "#0d9488" }}>
                 <LayoutDashboard size={14} className="text-white" />
               </div>
               <span className="text-white font-semibold text-sm serif">Dashboard Statistik</span>
@@ -142,12 +142,12 @@ export default function DashboardPage() {
           {/* Desktop actions */}
           <div className="hidden md:flex items-center gap-2">
             <button onClick={fetchData}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-slate-400 hover:text-white transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium text-slate-400 hover:text-white transition-colors"
               style={{ border: "1px solid rgba(255,255,255,0.1)" }}>
               <RefreshCw size={12} className={loading ? "animate-spin" : ""} />Refresh
             </button>
             <button onClick={handleLogout}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors"
               style={{ border: "1px solid rgba(239,68,68,0.3)", color: "#fca5a5", backgroundColor: "rgba(239,68,68,0.1)" }}>
               <LogOut size={12} />Logout
             </button>
@@ -156,7 +156,7 @@ export default function DashboardPage() {
           {/* Mobile hamburger */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg transition-colors"
+            className="md:hidden p-2 rounded transition-colors"
             style={{ backgroundColor: mobileMenuOpen ? "rgba(255,255,255,0.1)" : "transparent", color: "#94a3b8" }}>
             {mobileMenuOpen ? <XIcon size={20} /> : <Menu size={20} />}
           </button>
@@ -167,16 +167,16 @@ export default function DashboardPage() {
           <div className="md:hidden absolute top-full left-0 right-0 z-50 animate-fade-up"
             style={{ backgroundColor: "#0f1b2d", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
             <div className="max-w-7xl mx-auto px-6 py-3 space-y-1">
-              <a href="/admin" className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+              <a href="/admin" className="flex items-center gap-2.5 px-3 py-2.5 rounded text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-all">
                 <ChevronLeft size={15} />Kembali ke Admin Panel
               </a>
               <div className="h-px my-1" style={{ backgroundColor: "rgba(255,255,255,0.06)" }} />
               <button onClick={fetchData}
-                className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-all text-left">
+                className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-all text-left">
                 <RefreshCw size={15} className={loading ? "animate-spin" : ""} />Refresh Data
               </button>
               <button onClick={handleLogout}
-                className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm transition-all text-left"
+                className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded text-sm transition-all text-left"
                 style={{ color: "#fca5a5" }}
                 onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.1)")}
                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}>
@@ -191,7 +191,7 @@ export default function DashboardPage() {
 
         {/* Error */}
         {error && (
-          <div className="rounded-2xl border border-red-100 bg-red-50 p-4 mb-6 flex items-center gap-3">
+          <div className="rounded border border-red-100 bg-red-50 p-4 mb-6 flex items-center gap-3">
             <AlertCircle size={16} className="text-red-500" />
             <p className="text-sm text-red-700">{error}</p>
           </div>
@@ -202,12 +202,12 @@ export default function DashboardPage() {
           <div className="space-y-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[1,2,3,4].map((i) => (
-                <div key={i} className="h-28 bg-white rounded-2xl animate-pulse border border-slate-100" />
+                <div key={i} className="h-28 bg-white rounded animate-pulse border border-slate-100" />
               ))}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {[1,2].map((i) => (
-                <div key={i} className="h-72 bg-white rounded-2xl animate-pulse border border-slate-100" />
+                <div key={i} className="h-72 bg-white rounded animate-pulse border border-slate-100" />
               ))}
             </div>
           </div>
@@ -226,7 +226,7 @@ export default function DashboardPage() {
             {/* ── Row 1: Line Chart + Pie ── */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
               {/* Tren 6 bulan */}
-              <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+              <div className="lg:col-span-2 bg-white rounded border border-slate-100 shadow-sm p-5">
                 <div className="flex items-center justify-between mb-5">
                   <div>
                     <h3 className="font-semibold text-slate-800 text-sm">Tren Aduan 6 Bulan Terakhir</h3>
@@ -235,7 +235,7 @@ export default function DashboardPage() {
                   <div className="flex items-center gap-3">
                     {Object.entries(STATUS_COLORS).map(([k, c]) => (
                       <div key={k} className="flex items-center gap-1.5">
-                        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: c }} />
+                        <span className="w-2.5 h-2.5 rounded" style={{ backgroundColor: c }} />
                         <span className="text-xs text-slate-400 capitalize">{k}</span>
                       </div>
                     ))}
@@ -255,7 +255,7 @@ export default function DashboardPage() {
               </div>
 
               {/* Pie Chart */}
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+              <div className="bg-white rounded border border-slate-100 shadow-sm p-5">
                 <div className="mb-5">
                   <h3 className="font-semibold text-slate-800 text-sm">Distribusi Status</h3>
                   <p className="text-xs text-slate-400 mt-0.5">Perbandingan status aduan</p>
@@ -281,7 +281,7 @@ export default function DashboardPage() {
                       {pieData.map((item, i) => (
                         <div key={item.name} className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: PIE_COLORS[i] }} />
+                            <span className="w-2.5 h-2.5 rounded" style={{ backgroundColor: PIE_COLORS[i] }} />
                             <span className="text-xs text-slate-600">{item.name}</span>
                           </div>
                           <div className="flex items-center gap-2">
@@ -299,7 +299,7 @@ export default function DashboardPage() {
             </div>
 
             {/* ── Row 2: Bar Chart per Kategori ── */}
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 mb-6">
+            <div className="bg-white rounded border border-slate-100 shadow-sm p-5 mb-6">
               <div className="flex items-center justify-between mb-5">
                 <div>
                   <h3 className="font-semibold text-slate-800 text-sm">Aduan per Kategori</h3>
@@ -308,7 +308,7 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-3">
                   {Object.entries(STATUS_COLORS).map(([k, c]) => (
                     <div key={k} className="flex items-center gap-1.5">
-                      <span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: c }} />
+                      <span className="w-2.5 h-2.5 rounded" style={{ backgroundColor: c }} />
                       <span className="text-xs text-slate-400 capitalize">{k}</span>
                     </div>
                   ))}
@@ -336,7 +336,7 @@ export default function DashboardPage() {
             {/* ── Row 3: Top Kategori + Ringkasan ── */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Top kategori */}
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+              <div className="bg-white rounded border border-slate-100 shadow-sm p-5">
                 <h3 className="font-semibold text-slate-800 text-sm mb-4">Kategori Terbanyak</h3>
                 {data.perKategori.length === 0 ? (
                   <p className="text-xs text-slate-400 text-center py-8">Belum ada data</p>
@@ -349,7 +349,7 @@ export default function DashboardPage() {
                         <div key={k.kategori}>
                           <div className="flex items-center justify-between mb-1.5">
                             <div className="flex items-center gap-2">
-                              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: colors[i % colors.length] }} />
+                              <span className="w-2 h-2 rounded" style={{ backgroundColor: colors[i % colors.length] }} />
                               <span className="text-xs font-medium text-slate-700">
                                 {KATEGORI_LABELS[k.kategori] ?? k.kategori}
                               </span>
@@ -359,8 +359,8 @@ export default function DashboardPage() {
                               <span className="text-xs font-semibold text-slate-800">{k.total}</span>
                             </div>
                           </div>
-                          <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                            <div className="h-full rounded-full transition-all"
+                          <div className="h-1.5 rounded bg-slate-100 overflow-hidden">
+                            <div className="h-full rounded transition-all"
                               style={{ width: `${pct}%`, backgroundColor: colors[i % colors.length] }} />
                           </div>
                         </div>
@@ -371,7 +371,7 @@ export default function DashboardPage() {
               </div>
 
               {/* Ringkasan cepat */}
-              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+              <div className="bg-white rounded border border-slate-100 shadow-sm p-5">
                 <h3 className="font-semibold text-slate-800 text-sm mb-4">Ringkasan</h3>
                 <div className="space-y-3">
                   {[
@@ -396,7 +396,7 @@ export default function DashboardPage() {
                 </div>
 
                 <a href="/admin"
-                  className="mt-4 flex items-center justify-center gap-1.5 w-full py-2.5 rounded-xl text-xs font-semibold transition-all hover:opacity-90"
+                  className="mt-4 flex items-center justify-center gap-1.5 w-full py-2.5 rounded text-xs font-semibold transition-all hover:opacity-90"
                   style={{ backgroundColor: "#0f1b2d", color: "white" }}>
                   Ke Panel Admin <ArrowRight size={13} />
                 </a>

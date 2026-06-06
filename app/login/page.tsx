@@ -52,7 +52,7 @@ export default function LoginMahasiswaPage() {
       <div className="relative w-full max-w-sm animate-fade-up">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-2xl overflow-hidden flex items-center justify-center mx-auto mb-4"
+          <div className="w-16 h-16 rounded overflow-hidden flex items-center justify-center mx-auto mb-4"
             style={{ backgroundColor: "transparent" }}>
             <Image src="/logo.png" alt="Logo" width={64} height={64} className="w-full h-full object-contain"
               onError={(e) => {
@@ -65,12 +65,12 @@ export default function LoginMahasiswaPage() {
         </div>
 
         {/* Card */}
-        <div className="rounded-2xl overflow-hidden shadow-2xl"
+        <div className="rounded overflow-hidden shadow-2xl"
           style={{ backgroundColor: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
           <div className="p-7">
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs animate-fade-up"
+                <div className="flex items-center gap-2.5 px-3 py-2.5 rounded text-xs animate-fade-up"
                   style={{ backgroundColor: "rgba(239,68,68,0.15)", border: "1px solid rgba(239,68,68,0.3)", color: "#fca5a5" }}>
                   <AlertCircle size={13} className="shrink-0" />{error}
                 </div>
@@ -86,7 +86,7 @@ export default function LoginMahasiswaPage() {
                   <input type="text" value={form.nim}
                     onChange={(e) => { setForm((f) => ({ ...f, nim: e.target.value })); setError(""); }}
                     placeholder="Masukkan NIM Anda"
-                    className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm outline-none transition-all"
+                    className="w-full pl-9 pr-4 py-2.5 rounded text-sm outline-none transition-all"
                     style={{ backgroundColor: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "white" }}
                     onFocus={(e) => (e.target.style.borderColor = "#0d9488")}
                     onBlur={(e) => (e.target.style.borderColor = "rgba(255,255,255,0.1)")} />
@@ -103,7 +103,7 @@ export default function LoginMahasiswaPage() {
                   <input type={showPass ? "text" : "password"} value={form.password}
                     onChange={(e) => { setForm((f) => ({ ...f, password: e.target.value })); setError(""); }}
                     placeholder="Masukkan password"
-                    className="w-full pl-9 pr-10 py-2.5 rounded-xl text-sm outline-none transition-all"
+                    className="w-full pl-9 pr-10 py-2.5 rounded text-sm outline-none transition-all"
                     style={{ backgroundColor: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", color: "white" }}
                     onFocus={(e) => (e.target.style.borderColor = "#0d9488")}
                     onBlur={(e) => (e.target.style.borderColor = "rgba(255,255,255,0.1)")} />
@@ -115,7 +115,7 @@ export default function LoginMahasiswaPage() {
               </div>
 
               <button type="submit" disabled={loading}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-60 mt-2"
+                className="w-full flex items-center justify-center gap-2 py-3 rounded font-semibold text-sm transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-60 mt-2"
                 style={{ backgroundColor: "#0d9488", color: "white" }}>
                 {loading ? <RefreshCw size={15} className="animate-spin" /> : <LogIn size={15} />}
                 {loading ? "Memverifikasi..." : "Masuk"}

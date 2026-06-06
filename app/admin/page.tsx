@@ -49,7 +49,7 @@ function getKategori(value: string) { return KATEGORI_LIST.find((k) => k.value =
 function StatusBadge({ status }: { status: StatusType }) {
   const cfg = STATUS_CONFIG[status]; const Icon = cfg.icon;
   return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold"
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-semibold"
       style={{ backgroundColor: cfg.bg, color: cfg.color, border: `1px solid ${cfg.border}` }}>
       <Icon size={11} />{cfg.label}
     </span>
@@ -76,17 +76,17 @@ function DetailPanel({ fb, onClose, onUpdate }: {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
       style={{ backgroundColor: "rgba(15,27,45,0.7)", backdropFilter: "blur(4px)" }}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-fade-up">
+      <div className="bg-white rounded shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-fade-up">
         <div className="sticky top-0 bg-white border-b border-slate-100 px-5 py-4 flex items-center justify-between rounded-t-2xl">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: kat.color + "18", color: kat.color }}>
+            <div className="w-8 h-8 rounded flex items-center justify-center" style={{ backgroundColor: kat.color + "18", color: kat.color }}>
               <KatIcon size={16} /></div>
             <div>
               <p className="text-[11px] font-medium text-slate-400 uppercase tracking-wider">{kat.label}</p>
               <h3 className="font-semibold text-slate-800 text-sm">{fb.judul}</h3>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
+          <button onClick={onClose} className="p-1.5 rounded hover:bg-slate-100 transition-colors">
             <X size={16} className="text-slate-400" /></button>
         </div>
 
@@ -98,20 +98,20 @@ function DetailPanel({ fb, onClose, onUpdate }: {
               { label: "ID",      value: fb.id.slice(0,8).toUpperCase() },
               { label: "Tanggal", value: formatTanggal(fb.createdAt) },
             ].map(({ label, value }) => (
-              <div key={label} className="bg-slate-50 rounded-xl p-3">
+              <div key={label} className="bg-slate-50 rounded p-3">
                 <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">{label}</p>
                 <p className="text-sm font-medium text-slate-700">{value}</p>
               </div>
             ))}
           </div>
 
-          <div className="bg-slate-50 rounded-xl p-3">
+          <div className="bg-slate-50 rounded p-3">
             <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Deskripsi</p>
             <p className="text-sm text-slate-700 leading-relaxed">{fb.deskripsi}</p>
           </div>
 
           {fb.lampiran && (
-            <div className="rounded-xl overflow-hidden border border-slate-200">
+            <div className="rounded overflow-hidden border border-slate-200">
               <div className="px-3 py-2 flex items-center justify-between" style={{ backgroundColor: "#f8f7f4" }}>
                 <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                   <ImageIcon size={11} />Foto Lampiran
@@ -134,7 +134,7 @@ function DetailPanel({ fb, onClose, onUpdate }: {
                 const cfg = STATUS_CONFIG[s]; const Icon = cfg.icon; const sel = status === s;
                 return (
                   <button key={s} onClick={() => setStatus(s)}
-                    className="flex flex-col items-center gap-1.5 p-3 rounded-xl border text-xs font-semibold transition-all"
+                    className="flex flex-col items-center gap-1.5 p-3 rounded border text-xs font-semibold transition-all"
                     style={{ borderColor: sel ? cfg.color : "#e2e8f0", backgroundColor: sel ? cfg.bg : "white", color: sel ? cfg.color : "#94a3b8" }}>
                     <Icon size={18} />{cfg.label}
                   </button>
@@ -149,14 +149,14 @@ function DetailPanel({ fb, onClose, onUpdate }: {
             </label>
             <textarea value={balasan} onChange={(e) => setBalasan(e.target.value)} rows={4}
               placeholder={status === "diterima" ? "Jelaskan tindak lanjut..." : status === "ditolak" ? "Jelaskan alasan penolakan..." : "Tambahkan catatan..."}
-              className="w-full px-3 py-2.5 rounded-xl border text-sm transition-all outline-none resize-none"
+              className="w-full px-3 py-2.5 rounded border text-sm transition-all outline-none resize-none"
               style={{ borderColor: "#e2e8f0" }}
               onFocus={(e) => (e.target.style.borderColor = "#0d9488")}
               onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")} />
           </div>
 
           <button onClick={handleSave} disabled={saving}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all hover:opacity-90 disabled:opacity-60"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded font-semibold text-sm transition-all hover:opacity-90 disabled:opacity-60"
             style={{ backgroundColor: saved ? "#10b981" : "#0f1b2d", color: "white" }}>
             {saving ? <RefreshCw size={15} className="animate-spin" /> : saved ? <CheckCircle2 size={15} /> : <Send size={15} />}
             {saving ? "Menyimpan..." : saved ? "Tersimpan!" : "Simpan Perubahan"}
@@ -237,7 +237,7 @@ function MahasiswaTab() {
           </p>
         </div>
         <button onClick={() => setShowForm(!showForm)}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all"
+          className="flex items-center gap-1.5 px-3 py-2 rounded text-xs font-semibold transition-all"
           style={{ backgroundColor: showForm ? "#f1f5f9" : "#0f1b2d", color: showForm ? "#64748b" : "white" }}>
           <UserPlus size={13} />{showForm ? "Batal" : "Tambah Mahasiswa"}
         </button>
@@ -245,11 +245,11 @@ function MahasiswaTab() {
 
       {/* Form tambah */}
       {showForm && (
-        <div className="bg-white rounded-2xl border border-slate-100 p-5 mb-4 animate-fade-up">
+        <div className="bg-white rounded border border-slate-100 p-5 mb-4 animate-fade-up">
           <h3 className="serif text-base text-slate-800 mb-4">Tambah Mahasiswa Baru</h3>
           <form onSubmit={handleAdd} className="space-y-3">
             {error && (
-              <div className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs"
+              <div className="flex items-center gap-2 px-3 py-2 rounded text-xs"
                 style={{ backgroundColor: "#fee2e2", color: "#991b1b", border: "1px solid #fca5a5" }}>
                 <AlertCircle size={12} />{error}
               </div>
@@ -259,7 +259,7 @@ function MahasiswaTab() {
                 <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">NIM *</label>
                 <input type="text" value={form.nim} onChange={(e) => setForm((f) => ({ ...f, nim: e.target.value }))}
                   placeholder="24XXXXXXXX"
-                  className="w-full px-3 py-2.5 rounded-xl border text-sm outline-none transition-all"
+                  className="w-full px-3 py-2.5 rounded border text-sm outline-none transition-all"
                   style={{ borderColor: "#e2e8f0" }}
                   onFocus={(e) => (e.target.style.borderColor = "#0d9488")}
                   onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")} />
@@ -268,7 +268,7 @@ function MahasiswaTab() {
                 <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Nama *</label>
                 <input type="text" value={form.nama} onChange={(e) => setForm((f) => ({ ...f, nama: e.target.value }))}
                   placeholder="Nama lengkap"
-                  className="w-full px-3 py-2.5 rounded-xl border text-sm outline-none transition-all"
+                  className="w-full px-3 py-2.5 rounded border text-sm outline-none transition-all"
                   style={{ borderColor: "#e2e8f0" }}
                   onFocus={(e) => (e.target.style.borderColor = "#0d9488")}
                   onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")} />
@@ -280,7 +280,7 @@ function MahasiswaTab() {
                 <input type={showPass ? "text" : "password"} value={form.password}
                   onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
                   placeholder="Password awal mahasiswa"
-                  className="w-full px-3 pr-10 py-2.5 rounded-xl border text-sm outline-none transition-all"
+                  className="w-full px-3 pr-10 py-2.5 rounded border text-sm outline-none transition-all"
                   style={{ borderColor: "#e2e8f0" }}
                   onFocus={(e) => (e.target.style.borderColor = "#0d9488")}
                   onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")} />
@@ -291,7 +291,7 @@ function MahasiswaTab() {
               </div>
             </div>
             <button type="submit" disabled={saving}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all hover:opacity-90 disabled:opacity-60"
+              className="flex items-center gap-2 px-4 py-2.5 rounded text-sm font-semibold transition-all hover:opacity-90 disabled:opacity-60"
               style={{ backgroundColor: "#0d9488", color: "white" }}>
               {saving ? <RefreshCw size={13} className="animate-spin" /> : <UserPlus size={13} />}
               {saving ? "Menyimpan..." : "Simpan Mahasiswa"}
@@ -301,12 +301,12 @@ function MahasiswaTab() {
       )}
 
       {/* Table */}
-      <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
+      <div className="bg-white rounded border border-slate-100 overflow-hidden">
         {loading ? (
           <div className="p-5 space-y-3">
             {[1,2,3].map((i) => (
               <div key={i} className="animate-pulse flex items-center gap-4">
-                <div className="w-8 h-8 bg-slate-100 rounded-full" />
+                <div className="w-8 h-8 bg-slate-100 rounded" />
                 <div className="flex-1 space-y-1.5">
                   <div className="h-3 bg-slate-100 rounded w-1/4" />
                   <div className="h-3 bg-slate-100 rounded w-1/3" />
@@ -334,7 +334,7 @@ function MahasiswaTab() {
                   <span className="col-span-2 text-xs font-mono text-slate-600">{m.nim}</span>
                   <span className="col-span-4 text-sm font-medium text-slate-800 truncate">{m.nama}</span>
                   <div className="col-span-2 flex justify-center">
-                    <span className="px-2 py-0.5 rounded-full text-xs font-semibold"
+                    <span className="px-2 py-0.5 rounded text-xs font-semibold"
                       style={{ backgroundColor: m._count.feedbacks > 0 ? "#dbeafe" : "#f1f5f9", color: m._count.feedbacks > 0 ? "#1d4ed8" : "#94a3b8" }}>
                       {m._count.feedbacks} aduan
                     </span>
@@ -342,11 +342,11 @@ function MahasiswaTab() {
                   <span className="col-span-2 text-xs text-slate-400">{formatTanggal(m.createdAt)}</span>
                   <div className="col-span-2 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button onClick={() => { setResetTarget(m); setNewPassword(""); }}
-                      className="p-1.5 rounded-lg hover:bg-blue-50 text-slate-400 hover:text-blue-500 transition-colors" title="Reset Password">
+                      className="p-1.5 rounded hover:bg-blue-50 text-slate-400 hover:text-blue-500 transition-colors" title="Reset Password">
                       <KeyRound size={13} />
                     </button>
                     <button onClick={() => setDeleteConfirm(m.id)}
-                      className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors" title="Hapus">
+                      className="p-1.5 rounded hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors" title="Hapus">
                       <Trash2 size={13} />
                     </button>
                   </div>
@@ -360,17 +360,17 @@ function MahasiswaTab() {
       {/* Delete confirm */}
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: "rgba(15,27,45,0.6)" }}>
-          <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full animate-fade-up">
-            <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4 mx-auto" style={{ backgroundColor: "#fee2e2" }}>
+          <div className="bg-white rounded shadow-2xl p-6 max-w-sm w-full animate-fade-up">
+            <div className="w-12 h-12 rounded flex items-center justify-center mb-4 mx-auto" style={{ backgroundColor: "#fee2e2" }}>
               <Trash2 size={22} className="text-red-500" />
             </div>
             <h3 className="serif text-lg text-slate-800 text-center mb-2">Hapus Mahasiswa?</h3>
             <p className="text-sm text-slate-500 text-center mb-6">Semua data aduan mahasiswa ini juga akan ikut terhapus.</p>
             <div className="flex gap-3">
               <button onClick={() => setDeleteConfirm(null)}
-                className="flex-1 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50">Batal</button>
+                className="flex-1 py-2.5 rounded border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50">Batal</button>
               <button onClick={() => handleDelete(deleteConfirm)}
-                className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white hover:opacity-90" style={{ backgroundColor: "#ef4444" }}>
+                className="flex-1 py-2.5 rounded text-sm font-semibold text-white hover:opacity-90" style={{ backgroundColor: "#ef4444" }}>
                 Ya, Hapus
               </button>
             </div>
@@ -381,23 +381,23 @@ function MahasiswaTab() {
       {/* Reset password modal */}
       {resetTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: "rgba(15,27,45,0.6)" }}>
-          <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full animate-fade-up">
-            <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4 mx-auto" style={{ backgroundColor: "#dbeafe" }}>
+          <div className="bg-white rounded shadow-2xl p-6 max-w-sm w-full animate-fade-up">
+            <div className="w-12 h-12 rounded flex items-center justify-center mb-4 mx-auto" style={{ backgroundColor: "#dbeafe" }}>
               <KeyRound size={22} className="text-blue-500" />
             </div>
             <h3 className="serif text-lg text-slate-800 text-center mb-1">Reset Password</h3>
             <p className="text-xs text-slate-400 text-center mb-4">{resetTarget.nama} ({resetTarget.nim})</p>
             <input type="text" value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
               placeholder="Password baru"
-              className="w-full px-3 py-2.5 rounded-xl border text-sm outline-none mb-4 transition-all"
+              className="w-full px-3 py-2.5 rounded border text-sm outline-none mb-4 transition-all"
               style={{ borderColor: "#e2e8f0" }}
               onFocus={(e) => (e.target.style.borderColor = "#3b82f6")}
               onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")} />
             <div className="flex gap-3">
               <button onClick={() => setResetTarget(null)}
-                className="flex-1 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50">Batal</button>
+                className="flex-1 py-2.5 rounded border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50">Batal</button>
               <button onClick={handleResetPassword} disabled={!newPassword}
-                className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+                className="flex-1 py-2.5 rounded text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
                 style={{ backgroundColor: "#3b82f6" }}>
                 Simpan
               </button>
@@ -484,7 +484,7 @@ export default function AdminPage() {
           {/* Logo + Nav */}
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: "#0d9488" }}>
+              <div className="w-7 h-7 rounded flex items-center justify-center" style={{ backgroundColor: "#0d9488" }}>
                 <ShieldAlert size={15} className="text-white" />
               </div>
               <span className="text-white font-semibold text-sm serif">Admin Panel</span>
@@ -505,12 +505,12 @@ export default function AdminPage() {
           {/* Desktop actions */}
           <div className="hidden md:flex items-center gap-2">
             <button onClick={fetchFeedbacks}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-slate-400 hover:text-white transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium text-slate-400 hover:text-white transition-colors"
               style={{ border: "1px solid rgba(255,255,255,0.1)" }}>
               <RefreshCw size={12} />Refresh
             </button>
             <button onClick={handleLogout}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors"
               style={{ border: "1px solid rgba(239,68,68,0.3)", color: "#fca5a5", backgroundColor: "rgba(239,68,68,0.1)" }}>
               <LogOut size={12} />Logout
             </button>
@@ -519,7 +519,7 @@ export default function AdminPage() {
           {/* Mobile hamburger */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg transition-colors"
+            className="md:hidden p-2 rounded transition-colors"
             style={{ backgroundColor: mobileMenuOpen ? "rgba(255,255,255,0.1)" : "transparent", color: "#94a3b8" }}>
             {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
@@ -530,19 +530,19 @@ export default function AdminPage() {
           <div className="md:hidden absolute top-full left-0 right-0 z-50 animate-fade-up"
             style={{ backgroundColor: "#0f1b2d", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
             <div className="max-w-7xl mx-auto px-6 py-3 space-y-1">
-              <a href="/" className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+              <a href="/" className="flex items-center gap-2.5 px-3 py-2.5 rounded text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-all">
                 <ChevronLeft size={15} />Kembali ke Beranda
               </a>
-              <a href="/admin/dashboard" className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm text-slate-400 hover:text-teal-400 hover:bg-white/5 transition-all">
+              <a href="/admin/dashboard" className="flex items-center gap-2.5 px-3 py-2.5 rounded text-sm text-slate-400 hover:text-teal-400 hover:bg-white/5 transition-all">
                 <LayoutDashboard size={15} />Dashboard Statistik
               </a>
               <div className="h-px my-1" style={{ backgroundColor: "rgba(255,255,255,0.06)" }} />
               <button onClick={fetchFeedbacks}
-                className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-all text-left">
+                className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-all text-left">
                 <RefreshCw size={15} />Refresh Data
               </button>
               <button onClick={handleLogout}
-                className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm transition-all text-left"
+                className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded text-sm transition-all text-left"
                 style={{ color: "#fca5a5" }}
                 onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(239,68,68,0.1)")}
                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}>
@@ -562,15 +562,15 @@ export default function AdminPage() {
             { label: "Diterima",    value: stats.diterima, color: "#065f46", bg: "#d1fae5",  icon: CheckCircle2 },
             { label: "Ditolak",     value: stats.ditolak,  color: "#991b1b", bg: "#fee2e2",  icon: XCircle },
           ].map(({ label, value, color, bg, icon: Icon }) => (
-            <div key={label} className="rounded-2xl p-4 shadow-sm border border-slate-100" style={{ backgroundColor: bg }}>
+            <div key={label} className="rounded p-4 shadow-sm border border-slate-100" style={{ backgroundColor: bg }}>
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs font-semibold uppercase tracking-wider" style={{ color }}>{label}</p>
                 <Icon size={16} style={{ color }} />
               </div>
               <p className="text-3xl font-bold serif" style={{ color }}>{value}</p>
               {stats.total > 0 && (
-                <div className="mt-2 h-1 rounded-full bg-black/5 overflow-hidden">
-                  <div className="h-full rounded-full" style={{ width: `${(value / stats.total) * 100}%`, backgroundColor: color }} />
+                <div className="mt-2 h-1 rounded bg-black/5 overflow-hidden">
+                  <div className="h-full rounded" style={{ width: `${(value / stats.total) * 100}%`, backgroundColor: color }} />
                 </div>
               )}
             </div>
@@ -578,13 +578,13 @@ export default function AdminPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex items-center gap-1 mb-5 bg-white rounded-xl p-1 border border-slate-100 w-fit shadow-sm">
+        <div className="flex items-center gap-1 mb-5 bg-white rounded p-1 border border-slate-100 w-fit shadow-sm">
           {([
             { key: "aduan",      label: "Kelola Aduan",      icon: MessageSquare },
             { key: "mahasiswa",  label: "Kelola Mahasiswa",  icon: Users },
           ] as { key: TabType; label: string; icon: React.ElementType }[]).map(({ key, label, icon: Icon }) => (
             <button key={key} onClick={() => setActiveTab(key)}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold transition-all"
+              className="flex items-center gap-1.5 px-4 py-2 rounded text-xs font-semibold transition-all"
               style={activeTab === key
                 ? { backgroundColor: "#0f1b2d", color: "white" }
                 : { color: "#64748b" }}>
@@ -604,7 +604,7 @@ export default function AdminPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Cari by judul, nama mahasiswa, atau NIM..."
-                className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-200 bg-white text-sm outline-none transition-all"
+                className="w-full pl-10 pr-10 py-2.5 rounded border border-slate-200 bg-white text-sm outline-none transition-all"
                 onFocus={(e) => (e.target.style.borderColor = "#0d9488")}
                 onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")}
               />
@@ -619,7 +619,7 @@ export default function AdminPage() {
             <div className="flex items-center gap-2 mb-4">
               {(["semua", "menunggu", "diterima", "ditolak"] as const).map((s) => (
                 <button key={s} onClick={() => setFilterStatus(s)}
-                  className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
+                  className="px-3 py-1.5 rounded text-xs font-semibold transition-all"
                   style={filterStatus === s
                     ? { backgroundColor: "#0f1b2d", color: "white" }
                     : { backgroundColor: "white", color: "#64748b", border: "1px solid #e2e8f0" }}>
@@ -629,23 +629,23 @@ export default function AdminPage() {
             </div>
 
             {error && (
-              <div className="rounded-2xl border border-red-100 bg-red-50 p-4 mb-4 flex items-center gap-3">
+              <div className="rounded border border-red-100 bg-red-50 p-4 mb-4 flex items-center gap-3">
                 <AlertCircle size={16} className="text-red-500 flex-shrink-0" />
                 <p className="text-sm text-red-700">{error}</p>
               </div>
             )}
 
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div className="bg-white rounded border border-slate-100 shadow-sm overflow-hidden">
               {loading ? (
                 <div className="p-6 space-y-3">
                   {[1,2,3,4].map((i) => (
                     <div key={i} className="animate-pulse flex items-center gap-4">
-                      <div className="w-8 h-8 bg-slate-100 rounded-lg flex-shrink-0" />
+                      <div className="w-8 h-8 bg-slate-100 rounded flex-shrink-0" />
                       <div className="flex-1 space-y-2">
                         <div className="h-3 bg-slate-100 rounded w-1/3" />
                         <div className="h-3 bg-slate-100 rounded w-1/2" />
                       </div>
-                      <div className="h-6 w-20 bg-slate-100 rounded-full" />
+                      <div className="h-6 w-20 bg-slate-100 rounded" />
                     </div>
                   ))}
                 </div>
@@ -679,7 +679,7 @@ export default function AdminPage() {
                           <p className="text-xs text-slate-400">{fb.mahasiswa.nim}</p>
                         </div>
                         <div className="col-span-2">
-                          <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs font-medium"
+                          <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs font-medium"
                             style={{ backgroundColor: kat.color + "15", color: kat.color }}>
                             <KatIcon size={11} />{kat.label}
                           </span>
@@ -690,7 +690,7 @@ export default function AdminPage() {
                         <div className="col-span-2 flex items-center gap-2">
                           <StatusBadge status={fb.status} />
                           <button onClick={(e) => { e.stopPropagation(); setDeleteConfirm(fb.id); }}
-                            className="p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-red-50 text-slate-300 hover:text-red-400">
+                            className="p-1 rounded opacity-0 group-hover:opacity-100 transition-all hover:bg-red-50 text-slate-300 hover:text-red-400">
                             <Trash2 size={13} />
                           </button>
                         </div>
@@ -714,17 +714,17 @@ export default function AdminPage() {
 
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: "rgba(15,27,45,0.6)" }}>
-          <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full animate-fade-up">
-            <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4 mx-auto" style={{ backgroundColor: "#fee2e2" }}>
+          <div className="bg-white rounded shadow-2xl p-6 max-w-sm w-full animate-fade-up">
+            <div className="w-12 h-12 rounded flex items-center justify-center mb-4 mx-auto" style={{ backgroundColor: "#fee2e2" }}>
               <Trash2 size={22} className="text-red-500" />
             </div>
             <h3 className="serif text-lg text-slate-800 text-center mb-2">Hapus Aduan?</h3>
             <p className="text-sm text-slate-500 text-center mb-6">Tindakan ini tidak dapat dibatalkan.</p>
             <div className="flex gap-3">
               <button onClick={() => setDeleteConfirm(null)}
-                className="flex-1 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50">Batal</button>
+                className="flex-1 py-2.5 rounded border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50">Batal</button>
               <button onClick={() => handleDelete(deleteConfirm)}
-                className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white hover:opacity-90" style={{ backgroundColor: "#ef4444" }}>
+                className="flex-1 py-2.5 rounded text-sm font-semibold text-white hover:opacity-90" style={{ backgroundColor: "#ef4444" }}>
                 Hapus
               </button>
             </div>

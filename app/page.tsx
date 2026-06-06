@@ -6,6 +6,7 @@ import {
   TrendingUp, ArrowRight, ShieldAlert, LogIn, Users,
 } from "lucide-react";
 import Image from "next/image";
+import Link from 'next/link';
 
 interface Stats {
   total: number;
@@ -64,7 +65,7 @@ export default function HomePage() {
         }} />
         <div className="relative max-w-5xl mx-auto px-6 py-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl overflow-hidden shrink-0 flex items-center justify-center" style={{ backgroundColor: "transparent" }}>
+              <div className="w-9 h-9 rounded overflow-hidden shrink-0 flex items-center justify-center" style={{ backgroundColor: "transparent" }}>
                 <Image src="/logo.png" alt="Logo" width={36} height={36} className="w-full h-full object-contain"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
               </div>
@@ -73,7 +74,7 @@ export default function HomePage() {
               <h1 className="text-white font-bold text-base leading-none serif">SVC</h1>
             </div>
           </div>
-          <a href="/admin/login" className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all hover:opacity-80"
+          <a href="/admin/login" className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-all hover:opacity-80"
             style={{ backgroundColor: "rgba(255,255,255,0.08)", color: "#94a3b8", border: "1px solid rgba(255,255,255,0.1)" }}>
             <ShieldAlert size={12} />Admin
           </a>
@@ -93,9 +94,9 @@ export default function HomePage() {
           }} />
 
           <div className="relative max-w-5xl mx-auto px-6 text-center">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6 text-xs font-medium"
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded mb-6 text-xs font-medium"
               style={{ backgroundColor: "rgba(13,148,136,0.2)", color: "#5eead4", border: "1px solid rgba(13,148,136,0.3)" }}>
-              <span className="w-1.5 h-1.5 rounded-full bg-teal-400 status-dot-pending" />
+              <span className="w-1.5 h-1.5 rounded bg-teal-400 status-dot-pending" />
               Sistem Aktif — Aduan Diproses 3–5 Hari Kerja
             </div>
 
@@ -108,7 +109,7 @@ export default function HomePage() {
             </p>
 
             <a href="/login"
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl font-semibold text-sm transition-all hover:opacity-90 active:scale-[0.98] shadow-lg"
+              className="inline-flex items-center gap-2 px-6 py-3.5 rounded font-semibold text-sm transition-all hover:opacity-90 active:scale-[0.98] shadow-lg"
               style={{ backgroundColor: "#0d9488", color: "white", boxShadow: "0 8px 32px rgba(13,148,136,0.4)" }}>
               <LogIn size={17} />
               Login & Kirim Aduan
@@ -126,9 +127,9 @@ export default function HomePage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {statCards.map(({ label, value, color, bg, border, icon: Icon }) => (
               <div key={label}
-                className="rounded-2xl p-5 text-center shadow-sm transition-transform hover:-translate-y-0.5"
+                className="rounded p-5 text-center shadow-sm transition-transform hover:-translate-y-0.5"
                 style={{ backgroundColor: bg, border: `1px solid ${border}` }}>
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center mx-auto mb-3"
+                <div className="w-9 h-9 rounded flex items-center justify-center mx-auto mb-3"
                   style={{ backgroundColor: color + "20" }}>
                   <Icon size={18} style={{ color }} />
                 </div>
@@ -153,8 +154,8 @@ export default function HomePage() {
               { step: "02", title: "Kirim Aduan", desc: "Pilih kategori fasilitas, jelaskan masalah secara detail agar mudah ditindaklanjuti.", color: "#0d9488" },
               { step: "03", title: "Pantau Status",desc: "Lihat status aduan Anda: menunggu, diterima, atau ditolak beserta balasan resmi.",    color: "#f59e0b" },
             ].map(({ step, title, desc, color }) => (
-              <div key={step} className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 serif text-lg font-bold"
+              <div key={step} className="bg-white rounded p-6 border border-slate-100 shadow-sm">
+                <div className="w-10 h-10 rounded flex items-center justify-center mb-4 serif text-lg font-bold"
                   style={{ backgroundColor: color + "15", color }}>
                   {step}
                 </div>
@@ -167,7 +168,7 @@ export default function HomePage() {
 
         {/* ── CTA ── */}
         <section className="max-w-5xl mx-auto px-6 mb-16">
-          <div className="rounded-2xl p-8 text-center relative overflow-hidden noise-bg"
+          <div className="rounded p-8 text-center relative overflow-hidden noise-bg"
             style={{ backgroundColor: "#0f1b2d" }}>
             <div className="absolute inset-0 opacity-20" style={{
               background: "radial-gradient(ellipse 60% 60% at 50% 50%, #0d9488, transparent)",
@@ -177,7 +178,7 @@ export default function HomePage() {
               <h3 className="serif text-2xl text-white mb-2">Siap Menyampaikan Aduan?</h3>
               <p className="text-slate-400 text-sm mb-6">Login sekarang dan bantu kami tingkatkan kualitas fasilitas kampus</p>
               <a href="/login"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all hover:opacity-90"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded font-semibold text-sm transition-all hover:opacity-90"
                 style={{ backgroundColor: "#0d9488", color: "white" }}>
                 <LogIn size={15} />Masuk Sekarang
               </a>
@@ -189,7 +190,7 @@ export default function HomePage() {
       {/* ── Footer ── */}
       <footer className="border-t border-slate-200">
         <div className="max-w-5xl mx-auto px-6 py-5 flex flex-col md:flex-row items-center justify-between gap-2">
-          <p className="text-xs text-slate-400">© 2026 SVC - Student Voice Campus backup by <a className="text-emerald-500" href="https://etherthink.cujud.xyz/">Etherthink</a></p>
+          <p className="text-xs text-slate-400">© 2026 SVC - Student Voice Campus backup by <Link className="text-emerald-500" href="https://www.etherthink.xyz/" target="_blank" rel="noopener noreferrer">Etherthink</ Link></p>
           <p className="text-xs text-slate-400">Aduan bersifat rahasia dan diproses dalam 3–5 hari kerja</p>
         </div>
       </footer>

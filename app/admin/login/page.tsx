@@ -69,13 +69,13 @@ export default function LoginPage() {
       <div className="relative w-full max-w-sm">
         {/* Card */}
         <div
-          className="rounded-2xl overflow-hidden shadow-2xl animate-fade-up"
+          className="rounded overflow-hidden shadow-2xl animate-fade-up"
           style={{ backgroundColor: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
         >
           {/* Header */}
           <div className="px-8 pt-8 pb-6 text-center">
             <div
-              className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4"
+              className="w-14 h-14 rounded flex items-center justify-center mx-auto mb-4"
               style={{ backgroundColor: "#0d9488" }}
             >
               <ShieldAlert size={28} className="text-white" />
@@ -92,7 +92,7 @@ export default function LoginPage() {
               {/* Error */}
               {error && (
                 <div
-                  className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs animate-fade-up"
+                  className="flex items-center gap-2.5 px-3 py-2.5 rounded text-xs animate-fade-up"
                   style={{ backgroundColor: "rgba(239,68,68,0.15)", border: "1px solid rgba(239,68,68,0.3)", color: "#fca5a5" }}
                 >
                   <AlertCircle size={13} className="flex-shrink-0" />
@@ -113,7 +113,7 @@ export default function LoginPage() {
                     onChange={(e) => { setForm((f) => ({ ...f, username: e.target.value })); setError(""); }}
                     placeholder="Masukkan username"
                     autoComplete="username"
-                    className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm outline-none transition-all"
+                    className="w-full pl-9 pr-4 py-2.5 rounded text-sm outline-none transition-all"
                     style={{
                       backgroundColor: "rgba(255,255,255,0.06)",
                       border: "1px solid rgba(255,255,255,0.1)",
@@ -138,7 +138,7 @@ export default function LoginPage() {
                     onChange={(e) => { setForm((f) => ({ ...f, password: e.target.value })); setError(""); }}
                     placeholder="Masukkan password"
                     autoComplete="current-password"
-                    className="w-full pl-9 pr-10 py-2.5 rounded-xl text-sm outline-none transition-all"
+                    className="w-full pl-9 pr-10 py-2.5 rounded text-sm outline-none transition-all"
                     style={{
                       backgroundColor: "rgba(255,255,255,0.06)",
                       border: "1px solid rgba(255,255,255,0.1)",
@@ -164,7 +164,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-60 mt-2"
+                className="w-full flex items-center justify-center gap-2 py-3 rounded font-semibold text-sm transition-all hover:opacity-90 active:scale-[0.98] disabled:opacity-60 mt-2"
                 style={{ backgroundColor: "#0d9488", color: "white" }}
               >
                 {loading ? <RefreshCw size={15} className="animate-spin" /> : <ShieldAlert size={15} />}
