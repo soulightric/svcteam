@@ -511,8 +511,8 @@ export default function AdminPage() {
               <RefreshCw size={12} />Refresh
             </button>
             <button onClick={handleLogout}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors"
-              style={{ border: "1px solid rgba(239,68,68,0.3)", color: "#fca5a5", backgroundColor: "rgba(239,68,68,0.1)" }}>
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium text-slate-400 hover:bg-red-500 text-white transition-colors"
+              style={{ border: "1px solid rgba(255, 255, 255,0.1)"  }}>
               <LogOut size={12} />Logout
             </button>
           </div>
