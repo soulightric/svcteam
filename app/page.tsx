@@ -20,6 +20,62 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [count, setCount] = useState({ total: 0, menunggu: 0, diterima: 0, ditolak: 0 });
 
+  // ==================== SLIDER STATE ====================
+  const heroImages = [
+    "https://ith.ac.id/public/carouselImg/2024-11-22T00-57-29-151Z.jpeg",      // Gambar 1
+  "https://ith.ac.id/public/carouselImg/2024-11-22T00-56-59-919Z.jpeg",      // Gambar 2
+  "https://ith.ac.id/public/carouselImg/2024-11-22T01-02-08-093Z.jpeg",    // Gambar 3
+  "https://ith.ac.id/public/carouselImg/2024-11-22T01-00-23-481Z.jpeg",    // Gambar 4
+  ];
+
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  // Auto slide setiap 5 detik
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % heroImages.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // ==================== ANIMASI COUNTER ====================
+  useEffect(() => {
+    fetch("/api/stats")
+      .then((r) => r.json())
+      .then((data) => { 
+        setStats(data); 
+        setLoading(false); 
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  // Animasi counter angka
+  useEffect(() => {
+    if (loading) return;
+
+    const duration = 1200;
+    const steps = 40;
+    const interval = duration / steps;
+    let step = 0;
+
+    const timer = setInterval(() => {
+      step++;
+      const progress = step / steps;
+      const ease = 1 - Math.pow(1 - progress, 3);
+
+      setCount({
+        total:    Math.round(stats.total    * ease),
+        menunggu: Math.round(stats.menunggu * ease),
+        diterima: Math.round(stats.diterima * ease),
+        ditolak:  Math.round(stats.ditolak  * ease),
+      });
+
+      if (step >= steps) clearInterval(timer);
+    }, interval);
+
+    return () => clearInterval(timer);
+  }, [loading, stats]);
+
   useEffect(() => {
     fetch("/api/stats")
       .then((r) => r.json())
@@ -59,7 +115,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: "#f8f7f4" }}>
       {/* ── Header ── */}
-      <header className="relative overflow-hidden noise-bg border-b-2 border-solid border-emerald-900" style={{ backgroundColor: "#0f1b2d" }}>
+      <header className="relative overflow-hidden noise-bg" style={{ backgroundColor: "#0f1b2d" }}>
         <div className="absolute inset-0 opacity-15 " style={{
           background: "radial-gradient(ellipse 70% 60% at 15% 50%, #f59e0b, transparent), radial-gradient(ellipse 50% 40% at 85% 20%, #0d9488, transparent)",
         }} />
@@ -84,16 +140,26 @@ export default function HomePage() {
       {/* ── Hero ── */}
       <main className="flex-1">
         <section className="relative overflow-hidden noise-bg pb-16 pt-16" style={{ backgroundColor: "#0f1b2d" }}>
-          <div className="absolute inset-0 opacity-15" style={{
-            background: "radial-gradient(ellipse 80% 60% at 20% 60%, #0d9488, transparent), radial-gradient(ellipse 60% 50% at 80% 20%, #f59e0b, transparent)",
-          }} />
-          {/* Grid decoration */}
-          <div className="absolute inset-0 opacity-5" style={{
-            backgroundImage: "linear-gradient(rgba(255,255,255,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.15) 1px, transparent 1px)",
-            backgroundSize: "48px 48px",
-          }} />
+          {/* Background Image Slider */}
+          <div className="absolute inset-0 z-0">
+            {heroImages.map((image, index) => (
+              <div
+                key={index}
+                className="absolute inset-0 transition-opacity duration-1000 ease-in-out"
+                style={{
+                  opacity: currentSlide === index ? 0.35 : 0,
+                  backgroundImage: `url(${image})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}
+              />
+            ))}
+            {/* Overlay gelap */}
+            <div className="absolute inset-0 bg-black/60" />
+          </div>
 
-          <div className="relative max-w-5xl mx-auto px-6 text-center">
+          {/* Konten Teks */}
+          <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded mb-6 text-xs font-medium"
               style={{ backgroundColor: "rgba(13,148,136,0.2)", color: "#5eead4", border: "1px solid rgba(13,148,136,0.3)" }}>
               <span className="w-1.5 h-1.5 rounded bg-teal-400 status-dot-pending" />
@@ -104,6 +170,7 @@ export default function HomePage() {
               Suara Mahasiswa,<br />
               <span style={{ color: "#fcd34d" }}>Kampus Lebih Baik</span>
             </h2>
+
             <p className="text-slate-300 text-sm md:text-base leading-relaxed max-w-xl mx-auto mb-10">
               Platform pengaduan dan feedback fasilitas kampus. Setiap masukan Anda akan ditindaklanjuti oleh tim yang berwenang.
             </p>
