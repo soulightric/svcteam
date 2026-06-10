@@ -22,26 +22,32 @@ Platform pengaduan dan feedback fasilitas kampus berbasis web. Mahasiswa yang te
 ## Fitur
 
 ### Halaman Publik (`/`)
+- Slider Fotage dari ith langsung
 - Statistik aduan real-time (total, menunggu, diterima, ditolak)
 - Animasi counter angka
 - Tombol login mahasiswa
+- Tombol login admin
 
 ### Portal Mahasiswa (`/feedback`)
 - Login dengan NIM dan password
-- Form kirim aduan (kategori, judul, deskripsi)
+- Informasi Aduan dengan counter
+- Form kirim aduan (kategori, judul, deskripsi, gambar lampiran)
 - Lihat semua aduan beserta status
 - **Search** aduan by judul, nama, atau NIM
 - **Edit** aduan sendiri selama masih berstatus Menunggu
 - **Hapus** aduan sendiri selama masih berstatus Menunggu
 - Filter by status dan kategori
+- Notifikasi
+- Status siapa yang login
 
 ### Panel Admin (`/admin`)
-- Login dengan username dan password
+- Login dengan username dan password (superadmin / admin biasa)
 - Tabel aduan lengkap dengan filter status
 - Ubah status aduan (Menunggu → Diterima / Ditolak)
 - Tambahkan balasan atau alasan penolakan
 - Hapus aduan
 - **Tab Kelola Mahasiswa** — tambah, hapus, reset password mahasiswa
+- **Tab Kelola Admin** - tambah admin biasa
 - Search aduan by judul, nama, NIM
 
 ### Dashboard Statistik (`/admin/dashboard`)
@@ -59,45 +65,68 @@ Akademik, Perpustakaan, Internet & Teknologi, Kantin, Gedung & Ruang Kelas, Keam
 
 ```
 svc.cujud.xyz/
-├── app/
-│   ├── page.tsx                        # Halaman publik (statistik)
-│   ├── layout.tsx
-│   ├── globals.css
-│   ├── login/
-│   │   └── page.tsx                    # Login mahasiswa
-│   ├── feedback/
-│   │   └── page.tsx                    # Portal mahasiswa (protected)
-│   ├── admin/
-│   │   ├── page.tsx                    # Admin panel (protected)
-│   │   ├── login/
-│   │   │   └── page.tsx                # Login admin
-│   │   └── dashboard/
-│   │       └── page.tsx                # Dashboard statistik
-│   └── api/
-│       ├── feedback/
-│       │   ├── route.ts                # GET semua aduan, POST aduan baru
-│       │   └── [id]/route.ts           # PATCH ubah status/edit, DELETE hapus
-│       ├── mahasiswa/
-│       │   ├── route.ts                # GET list, POST tambah mahasiswa
-│       │   └── [id]/route.ts           # PATCH reset password, DELETE hapus
-│       ├── auth/
-│       │   ├── login/route.ts          # Login admin
-│       │   ├── logout/route.ts         # Logout admin
-│       │   ├── mahasiswa-login/route.ts
-│       │   ├── mahasiswa-logout/route.ts
-│       │   └── me/route.ts             # Ambil info user dari token
-│       ├── stats/route.ts              # Statistik publik
-│       └── dashboard/route.ts          # Data lengkap untuk dashboard
-├── lib/
-│   ├── prisma.ts                       # Prisma client singleton
-│   └── auth.ts                         # JWT sign & verify
-├── prisma/
-│   └── schema.prisma                   # Schema database
-├── middleware.ts                        # Proteksi route /admin & /feedback
-├── public/
-│   └── logo.png                        # Logo kampus
+├── app
+│   ├── admin
+│   │   ├── dashboard
+│   │   │   └── page.tsx
+│   │   ├── login
+│   │   │   └── page.tsx
+│   │   └── page.tsx
+│   ├── api
+│   │   ├── admin
+│   │   │   └── route.ts
+│   │   ├── auth
+│   │   │   ├── login
+│   │   │   │   ├── route.ts
+│   │   │   │   └── route.ts.bak
+│   │   │   ├── logout
+│   │   │   │   └── route.ts
+│   │   │   ├── mahasiswa-login
+│   │   │   │   └── route.ts
+│   │   │   ├── mahasiswa-logout
+│   │   │   │   └── route.ts
+│   │   │   └── me
+│   │   │       └── route.ts
+│   │   ├── dashboard
+│   │   │   └── route.ts
+│   │   ├── feedback
+│   │   │   ├── [id]
+│   │   │   │   └── route.ts
+│   │   │   └── route.ts
+│   │   ├── mahasiswa
+│   │   │   ├── [id]
+│   │   │   │   └── route.ts
+│   │   │   └── route.ts
+│   │   ├── notifications
+│   │   │   └── route.ts
+│   │   ├── stats
+│   │   │   └── route.ts
+│   │   └── upload
+│   │       └── route.ts
+│   ├── components
+│   │   └── NotificationBell.tsx
+│   ├── favicon.ico
+│   ├── feedback
+│   │   └── page.tsx
+│   ├── globals.css
+│   ├── layout.tsx
+│   ├── login
+│   │   └── page.tsx
+│   └── page.tsx
+├── lib
+│   ├── auth.ts
+│   ├── cloudinary.ts
+│   ├── hash.ts
+│   └── prisma.ts
+├── middleware.ts
+├── prisma
+│   └── schema.prisma
+├── public
+│   ├── logo-ith.png
+│   └── logo.png
 └── .env                                # Environment variables
 ```
+
 
 ---
 
