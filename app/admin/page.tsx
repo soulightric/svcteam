@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 type StatusType = "menunggu" | "diterima" | "ditolak";
-type TabType = "aduan" | "mahasiswa";
+type TabType = "aduan" | "mahasiswa" | "admin";
 
 interface Feedback {
   id: string; kategori: string; judul: string; deskripsi: string;
