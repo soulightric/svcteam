@@ -20,3 +20,26 @@ export async function verifyToken(token: string) {
     return null;
   }
 }
+
+export interface AdminPayload {
+  id: string;
+  username: string;
+  role: "SUPER_ADMIN" | "ADMIN";
+}
+
+export async function signAdminToken(payload: AdminPayload) {
+  return await new SignJWT(payload)
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime("8h")
+    .sign(secret);
+}
+
+export async function verifyAdminToken(token: string): Promise<AdminPayload | null> {
+  try {
+    const { payload } = await jwtVerify(token, secret);
+    return payload as AdminPayload;
+  } catch {
+    return null;
+  }
+}

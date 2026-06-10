@@ -421,6 +421,7 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<TabType>("aduan");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [currentRole, setCurrentRole] = useState<"SUPER_ADMIN" | "ADMIN" | null>(null);
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -582,6 +583,7 @@ export default function AdminPage() {
           {([
             { key: "aduan",      label: "Kelola Aduan",      icon: MessageSquare },
             { key: "mahasiswa",  label: "Kelola Mahasiswa",  icon: Users },
+            { key: "admin", label: "Kelola Admin", icon: ShieldAlert },
           ] as { key: TabType; label: string; icon: React.ElementType }[]).map(({ key, label, icon: Icon }) => (
             <button key={key} onClick={() => setActiveTab(key)}
               className="flex items-center gap-1.5 px-4 py-2 rounded text-xs font-semibold transition-all"
@@ -708,6 +710,9 @@ export default function AdminPage() {
 
         {/* Tab: Mahasiswa */}
         {activeTab === "mahasiswa" && <MahasiswaTab />}
+
+        {/* Tab: Kelola Admin */}
+        {activeTab === "admin" && <KelolaAdmin />}
       </main>
 
       {selected && <DetailPanel fb={selected} onClose={() => setSelected(null)} onUpdate={handleUpdate} />}
@@ -731,6 +736,194 @@ export default function AdminPage() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// ==================== KOMPONEN KELOLA ADMIN ====================
+function KelolaAdmin() {
+  const [admins, setAdmins] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const [newAdmin, setNewAdmin] = useState({
+    username: "",
+    password: "",
+    role: "ADMIN",
+  });
+
+  // Ambil daftar admin
+  const fetchAdmins = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const res = await fetch("/api/admin");
+
+      if (res.status === 403) {
+        setError("Hanya Super Admin yang dapat mengakses halaman ini.");
+        setAdmins([]);
+        return;
+      }
+
+      if (!res.ok) {
+        setError("Gagal memuat data admin");
+        return;
+      }
+
+      const data = await res.json();
+      setAdmins(data);
+    } catch (err) {
+      setError("Terjadi kesalahan saat memuat data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAdmins();
+  }, []);
+
+  // Fungsi Tambah Admin Baru
+  const handleAddAdmin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+
+    if (!newAdmin.username || !newAdmin.password) {
+      setError("Username dan password wajib diisi");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/admin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newAdmin),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Gagal menambahkan admin");
+        return;
+      }
+
+      setSuccess("Admin baru berhasil ditambahkan!");
+      setNewAdmin({ username: "", password: "", role: "ADMIN" });
+      fetchAdmins(); // refresh list
+    } catch (err) {
+      setError("Terjadi kesalahan saat menambahkan admin");
+    }
+  };
+
+  return (
+    <div className="bg-white rounded border border-slate-100 p-6">
+      <div className="flex items-center gap-3 mb-6">
+        <ShieldAlert className="text-teal-600" size={22} />
+        <h2 className="text-xl font-semibold">Kelola Admin</h2>
+      </div>
+
+      {/* Form Tambah Admin */}
+      <div className="mb-8 border-b pb-6">
+        <h3 className="font-semibold mb-4 text-slate-700">Tambah Admin Baru</h3>
+
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 text-red-600 text-sm rounded border border-red-200">
+            {error}
+          </div>
+        )}
+        {success && (
+          <div className="mb-4 p-3 bg-green-50 text-green-600 text-sm rounded border border-green-200">
+            {success}
+          </div>
+        )}
+
+        <form onSubmit={handleAddAdmin} className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <input
+            type="text"
+            placeholder="Username"
+            className="border border-slate-300 p-2.5 rounded text-sm focus:outline-none focus:border-teal-600"
+            value={newAdmin.username}
+            onChange={(e) => setNewAdmin({ ...newAdmin, username: e.target.value })}
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            className="border border-slate-300 p-2.5 rounded text-sm focus:outline-none focus:border-teal-600"
+            value={newAdmin.password}
+            onChange={(e) => setNewAdmin({ ...newAdmin, password: e.target.value })}
+          />
+          <select
+            className="border border-slate-300 p-2.5 rounded text-sm focus:outline-none focus:border-teal-600"
+            value={newAdmin.role}
+            onChange={(e) => setNewAdmin({ ...newAdmin, role: e.target.value })}
+          >
+            <option value="ADMIN">Admin Biasa</option>
+            {/* <option value="SUPER_ADMIN">Super Admin</option> */}
+          </select>
+
+          <button
+            type="submit"
+            className="bg-teal-600 hover:bg-teal-700 transition-colors text-white px-4 py-2.5 rounded text-sm font-medium flex items-center justify-center gap-2"
+          >
+            <UserPlus size={16} /> Tambah Admin
+          </button>
+        </form>
+      </div>
+
+      {/* Daftar Admin */}
+      <div>
+        <h3 className="font-semibold mb-4 text-slate-700">Daftar Admin</h3>
+
+        {loading ? (
+          <div className="flex justify-center py-8">
+            <RefreshCw className="animate-spin text-slate-400" />
+          </div>
+        ) : error && admins.length === 0 ? (
+          <div className="text-center py-8 text-red-500 text-sm">{error}</div>
+        ) : admins.length === 0 ? (
+          <p className="text-sm text-slate-500 py-4">Belum ada admin terdaftar.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b bg-slate-50">
+                  <th className="text-left py-3 px-4 font-medium">Username</th>
+                  <th className="text-left py-3 px-4 font-medium">Role</th>
+                  <th className="text-left py-3 px-4 font-medium">Dibuat Pada</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {admins.map((admin) => (
+                  <tr key={admin.id} className="hover:bg-slate-50">
+                    <td className="py-3 px-4 font-medium">{admin.username}</td>
+                    <td className="py-3 px-4">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                          admin.role === "SUPER_ADMIN"
+                            ? "bg-purple-100 text-purple-700"
+                            : "bg-slate-100 text-slate-600"
+                        }`}
+                      >
+                        {admin.role}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-xs text-slate-500">
+                      {new Date(admin.createdAt).toLocaleDateString("id-ID", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
