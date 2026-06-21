@@ -32,9 +32,10 @@ export async function POST(req: Request) {
         id: dbAdmin.id,
         username: dbAdmin.username,
         role: dbAdmin.role,
+        kategori: dbAdmin.kategori ?? null,
       });
 
-      const res = NextResponse.json({ success: true, role: dbAdmin.role });
+      const res = NextResponse.json({ success: true, role: dbAdmin.role, kategori: dbAdmin.kategori ?? null });
       res.cookies.set("admin_token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -53,9 +54,10 @@ export async function POST(req: Request) {
       const token = await signToken({
         username: envUser,
         role: "SUPER_ADMIN",
+        kategori: null,
       });
 
-      const res = NextResponse.json({ success: true, role: "SUPER_ADMIN" });
+      const res = NextResponse.json({ success: true, role: "SUPER_ADMIN", kategori: null });
       res.cookies.set("admin_token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",

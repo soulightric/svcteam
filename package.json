@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
-    "start": "next start"
+    "start": "next start",
+    "seed": "node prisma/seed.mjs"
   },
   "dependencies": {
     "@prisma/client": "5.22.0",

@@ -5,7 +5,25 @@ import { cookies } from "next/headers";
 
 export async function GET() {
   try {
+    const cookieStore = await cookies();
+    const adminToken = cookieStore.get("admin_token")?.value;
+
+    // Tentukan scope berdasarkan admin yang login
+    let where: { kategori?: string; diteruskan?: boolean } = {};
+    if (adminToken) {
+      const payload = await verifyToken(adminToken);
+      if (payload && payload.role === "ADMIN" && typeof payload.kategori === "string") {
+        // Admin kategori: hanya melihat feedback kategorinya yang sudah DITERUSKAN
+        // oleh admin biasa (SUPER_ADMIN).
+        where = { kategori: payload.kategori, diteruskan: true };
+      }
+      // SUPER_ADMIN (admin biasa/penerus) -> where kosong = semua feedback
+    }
+    // Tanpa admin_token (mahasiswa/publik) -> perilaku lama: kembalikan semua
+    // (halaman mahasiswa memfilter miliknya sendiri di sisi klien).
+
     const feedbacks = await prisma.feedback.findMany({
+      where,
       orderBy: { createdAt: "desc" },
       include: { mahasiswa: { select: { nama: true, nim: true } } },
     });

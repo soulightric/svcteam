@@ -12,7 +12,8 @@ model Admin {
   id        String   @id @default(cuid())
   username  String   @unique
   password  String
-  role      String   @default("ADMIN") // SUPER_ADMIN atau ADMIN
+  role      String   @default("ADMIN") // SUPER_ADMIN (admin biasa/penerus) atau ADMIN (admin kategori)
+  kategori  String?  // diisi untuk admin kategori: akademik, perpustakaan, dst. null untuk SUPER_ADMIN
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -33,7 +34,10 @@ model Feedback {
   deskripsi   String
   status      String     @default("menunggu")
   balasan     String?
-  lampiran    String?    // URL foto dari Cloudinary
+  lampiran    String?    // URL foto dari Cloudinary (lampiran dari mahasiswa)
+  lampiranBalasan String? // URL foto lampiran dari admin (bukti tindak lanjut / penyelesaian)
+  diteruskan   Boolean    @default(false) // true jika sudah diteruskan SUPER_ADMIN ke admin kategori
+  diteruskanAt DateTime?  // waktu diteruskan
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   mahasiswaId String

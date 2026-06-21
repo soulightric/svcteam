@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { MessageSquare, Eye, EyeOff, Hash, Lock, AlertCircle, RefreshCw, LogIn } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function LoginMahasiswaPage() {
   const router = useRouter();
@@ -125,11 +126,11 @@ export default function LoginMahasiswaPage() {
 
           <div className="px-7 pb-5 pt-0">
             <div className="pt-4" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-              <a href="/" className="flex items-center justify-center text-xs transition-colors" style={{ color: "#475569" }}
+              <Link href="/" className="flex items-center justify-center text-xs transition-colors" style={{ color: "#475569" }}
                 onMouseEnter={(e) => ((e.currentTarget).style.color = "#94a3b8")}
                 onMouseLeave={(e) => ((e.currentTarget).style.color = "#475569")}>
                 ← Kembali ke Beranda
-              </a>
+              </Link>
             </div>
           </div>
         </div>

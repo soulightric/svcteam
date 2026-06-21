@@ -8,9 +8,11 @@ const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 export async function POST(req: Request) {
   try {
-    // Cek auth mahasiswa
+    // Cek auth: boleh mahasiswa (lampiran aduan) ATAU admin (lampiran balasan/tindak lanjut)
     const cookieStore = await cookies();
-    const token = cookieStore.get("mahasiswa_token")?.value;
+    const mahasiswaToken = cookieStore.get("mahasiswa_token")?.value;
+    const adminToken = cookieStore.get("admin_token")?.value;
+    const token = mahasiswaToken ?? adminToken;
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const payload = await verifyToken(token);
@@ -31,6 +33,21 @@ export async function POST(req: Request) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
+    // Pastikan kredensial Cloudinary tersedia di runtime.
+    // Penyebab umum 500: env CLOUDINARY_* tidak ter-load (mis. menjalankan
+    // build standalone `node server.js` tanpa env, atau .env tidak di-inject).
+    if (
+      !process.env.CLOUDINARY_CLOUD_NAME ||
+      !process.env.CLOUDINARY_API_KEY ||
+      !process.env.CLOUDINARY_API_SECRET
+    ) {
+      console.error("UPLOAD ERROR: Kredensial Cloudinary tidak ditemukan di environment.");
+      return NextResponse.json(
+        { error: "Konfigurasi Cloudinary belum di-set di server (CLOUDINARY_CLOUD_NAME / API_KEY / API_SECRET)." },
+        { status: 500 }
+      );
+    }
+
     // Upload ke Cloudinary
     const result = await new Promise<{ secure_url: string; public_id: string }>((resolve, reject) => {
       cloudinary.uploader.upload_stream(
@@ -40,14 +57,20 @@ export async function POST(req: Request) {
           transformation: [{ width: 1200, height: 1200, crop: "limit", quality: "auto" }],
         },
         (error, result) => {
-          if (error || !result) reject(error);
+          if (error || !result) reject(error ?? new Error("Upload Cloudinary gagal tanpa hasil"));
           else resolve(result as { secure_url: string; public_id: string });
         }
       ).end(buffer);
     });
 
     return NextResponse.json({ url: result.secure_url, public_id: result.public_id });
-  } catch {
-    return NextResponse.json({ error: "Gagal mengupload foto" }, { status: 500 });
+  } catch (e: unknown) {
+    // Tampilkan pesan asli supaya mudah di-debug (mis. masalah kredensial / jaringan)
+    const msg =
+      (e as { error?: { message?: string } })?.error?.message ||
+      (e as { message?: string })?.message ||
+      "Gagal mengupload foto";
+    console.error("UPLOAD ERROR:", msg, e);
+    return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

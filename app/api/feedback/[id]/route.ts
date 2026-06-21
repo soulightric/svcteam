@@ -4,14 +4,26 @@ import { verifyToken } from "@/lib/auth";
 import { cookies } from "next/headers";
 
 // Helper: cek apakah request dari admin atau mahasiswa pemilik aduan
-async function getRequester() {
+type Requester =
+  | { role: "admin"; id: null; adminRole: string; kategori: string | null }
+  | { role: "mahasiswa"; id: string }
+  | null;
+
+async function getRequester(): Promise<Requester> {
   const cookieStore = await cookies();
   const adminToken = cookieStore.get("admin_token")?.value;
   const mahasiswaToken = cookieStore.get("mahasiswa_token")?.value;
 
   if (adminToken) {
     const payload = await verifyToken(adminToken);
-    if (payload) return { role: "admin", id: null };
+    if (payload) {
+      return {
+        role: "admin",
+        id: null,
+        adminRole: (payload.role as string) ?? "ADMIN",
+        kategori: (payload.kategori as string | null) ?? null,
+      };
+    }
   }
   if (mahasiswaToken) {
     const payload = await verifyToken(mahasiswaToken);
@@ -35,17 +47,39 @@ export async function PATCH(
     if (!feedback) return NextResponse.json({ error: "Aduan tidak ditemukan" }, { status: 404 });
 
     if (requester.role === "admin") {
-      // Admin bisa ubah status & balasan
-      const { status, balasan } = body;
+      const isSuper = requester.adminRole === "SUPER_ADMIN";
+
+      // Admin kategori hanya boleh menangani feedback kategorinya sendiri
+      if (!isSuper) {
+        if (!requester.kategori || feedback.kategori !== requester.kategori) {
+          return NextResponse.json({ error: "Bukan kategori Anda" }, { status: 403 });
+        }
+        if (!feedback.diteruskan) {
+          return NextResponse.json({ error: "Aduan belum diteruskan ke Anda" }, { status: 403 });
+        }
+      }
+
+      const { status, balasan, diteruskan, lampiranBalasan } = body;
       const validStatus = ["menunggu", "diterima", "ditolak", "selesai"];
       if (status && !validStatus.includes(status)) {
         return NextResponse.json({ error: "Status tidak valid" }, { status: 400 });
       }
+
+      // Hanya SUPER_ADMIN (admin biasa/penerus) yang boleh meneruskan ke admin kategori
+      if (diteruskan !== undefined && !isSuper) {
+        return NextResponse.json({ error: "Hanya admin biasa yang dapat meneruskan aduan" }, { status: 403 });
+      }
+
       const updated = await prisma.feedback.update({
         where: { id },
         data: {
           ...(status && { status }),
           ...(balasan !== undefined && { balasan }),
+          ...(lampiranBalasan !== undefined && { lampiranBalasan }),
+          ...(diteruskan !== undefined && isSuper && {
+            diteruskan: !!diteruskan,
+            diteruskanAt: diteruskan ? new Date() : null,
+          }),
         },
         include: { mahasiswa: { select: { nama: true, nim: true } } },
       });

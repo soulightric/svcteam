@@ -22,6 +22,7 @@ export async function GET() {
       id: true,
       username: true,
       role: true,
+      kategori: true,
       createdAt: true,
     },
     orderBy: { createdAt: "desc" },
@@ -37,10 +38,26 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { username, password, role = "ADMIN" } = await req.json();
+    const { username, password, role = "ADMIN", kategori = null } = await req.json();
 
     if (!username || !password) {
       return NextResponse.json({ error: "Username dan password wajib diisi" }, { status: 400 });
+    }
+
+    const KATEGORI_VALID = [
+      "akademik", "perpustakaan", "internet", "kantin",
+      "gedung", "keamanan", "laboratorium", "transportasi",
+    ];
+
+    const finalRole = role === "SUPER_ADMIN" ? "SUPER_ADMIN" : "ADMIN";
+
+    // Admin kategori (ADMIN) wajib punya kategori yang valid
+    let finalKategori: string | null = null;
+    if (finalRole === "ADMIN") {
+      if (!kategori || !KATEGORI_VALID.includes(kategori)) {
+        return NextResponse.json({ error: "Kategori admin tidak valid" }, { status: 400 });
+      }
+      finalKategori = kategori;
     }
 
     // Cek apakah username sudah ada
@@ -54,7 +71,8 @@ export async function POST(req: Request) {
       data: {
         username,
         password, // nanti kita ganti pakai hash
-        role: role === "SUPER_ADMIN" ? "SUPER_ADMIN" : "ADMIN",
+        role: finalRole,
+        kategori: finalKategori,
       },
     });
 
@@ -65,6 +83,7 @@ export async function POST(req: Request) {
         id: newAdmin.id,
         username: newAdmin.username,
         role: newAdmin.role,
+        kategori: newAdmin.kategori,
       },
     });
   } catch (error) {

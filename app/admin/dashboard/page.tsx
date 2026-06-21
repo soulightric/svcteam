@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import NavLink from "@/app/components/NavLink";
+import Link from "next/link";
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
@@ -134,9 +136,9 @@ export default function DashboardPage() {
             </div>
             <div className="hidden md:flex items-center gap-3">
               <div className="w-px h-4 bg-slate-700" />
-              <a href="/admin" className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors text-xs">
+              <NavLink href="/admin" exact className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors text-xs" activeClassName="!text-white font-semibold">
                 <ChevronLeft size={13} />Admin Panel
-              </a>
+              </NavLink>
             </div>
           </div>
 
@@ -168,9 +170,9 @@ export default function DashboardPage() {
           <div className="md:hidden absolute top-full left-0 right-0 z-50 animate-fade-up"
             style={{ backgroundColor: "#0f1b2d", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
             <div className="max-w-7xl mx-auto px-6 py-3 space-y-1">
-              <a href="/admin" className="flex items-center gap-2.5 px-3 py-2.5 rounded text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+              <NavLink href="/admin" exact onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2.5 px-3 py-2.5 rounded text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-all" activeClassName="!text-white bg-white/5">
                 <ChevronLeft size={15} />Kembali ke Admin Panel
-              </a>
+              </NavLink>
               <div className="h-px my-1" style={{ backgroundColor: "rgba(255,255,255,0.06)" }} />
               <button onClick={fetchData}
                 className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-all text-left">
@@ -401,11 +403,11 @@ export default function DashboardPage() {
                   ))}
                 </div>
 
-                <a href="/admin"
+                <Link href="/admin"
                   className="mt-4 flex items-center justify-center gap-1.5 w-full py-2.5 rounded text-xs font-semibold transition-all hover:opacity-90"
                   style={{ backgroundColor: "#0f1b2d", color: "white" }}>
                   Ke Panel Admin <ArrowRight size={13} />
-                </a>
+                </Link>
               </div>
             </div>
           </>

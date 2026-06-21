@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
+import NavLink from "@/app/components/NavLink";
 import {
   BookOpen, GraduationCap, Wifi, Utensils, Building2, ShieldCheck,
   FlaskConical, Bus, CheckCircle2, Clock3, XCircle, MessageSquare,
@@ -18,6 +19,13 @@ interface Feedback {
   status: StatusType; createdAt: string; balasan?: string | null;
   mahasiswa: { nama: string; nim: string };
   lampiran?: string | null;
+  lampiranBalasan?: string | null;
+  diteruskan?: boolean; diteruskanAt?: string | null;
+}
+interface MeInfo {
+  username: string | null;
+  role: "SUPER_ADMIN" | "ADMIN";
+  kategori: string | null;
 }
 interface Mahasiswa {
   id: string; nim: string; nama: string; createdAt: string;
@@ -58,20 +66,70 @@ function StatusBadge({ status }: { status: StatusType }) {
 }
 
 // ── Detail Panel ──────────────────────────────────────────────────────────────
-function DetailPanel({ fb, onClose, onUpdate }: {
+function DetailPanel({ fb, onClose, onUpdate, isSuper = false, onForward }: {
   fb: Feedback; onClose: () => void;
-  onUpdate: (id: string, status: StatusType, balasan: string) => Promise<void>;
+  onUpdate: (id: string, status: StatusType, balasan: string, lampiranBalasan?: string | null) => Promise<void>;
+  isSuper?: boolean;
+  onForward?: (id: string) => Promise<void>;
 }) {
   const [status, setStatus] = useState<StatusType>(fb.status);
   const [balasan, setBalasan] = useState(fb.balasan ?? "");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [forwarding, setForwarding] = useState(false);
+  // Lampiran balasan dari admin (bukti tindak lanjut / penyelesaian)
+  const [savedLampiran, setSavedLampiran] = useState<string | null>(fb.lampiranBalasan ?? null);
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [fileErr, setFileErr] = useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
   const kat = getKategori(fb.kategori); const KatIcon = kat.icon;
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(f.type)) {
+      setFileErr("Hanya JPG, PNG, atau WebP"); return;
+    }
+    if (f.size > 5 * 1024 * 1024) { setFileErr("Ukuran maksimal 5 MB"); return; }
+    setFile(f); setFileErr("");
+    const reader = new FileReader();
+    reader.onload = () => setPreview(reader.result as string);
+    reader.readAsDataURL(f);
+  };
+
+  const clearNewFile = () => { setFile(null); setPreview(null); if (fileRef.current) fileRef.current.value = ""; };
 
   const handleSave = async () => {
     setSaving(true);
-    try { await onUpdate(fb.id, status, balasan); setSaved(true); setTimeout(() => setSaved(false), 2000); }
-    finally { setSaving(false); }
+    setFileErr("");
+    try {
+      // lampiran balasan: pakai yang sudah tersimpan, kecuali ada file baru / dihapus
+      let lampiranUrl: string | null = savedLampiran;
+      if (file) {
+        setUploading(true);
+        const fd = new FormData();
+        fd.append("file", file);
+        const res = await fetch("/api/upload", { method: "POST", body: fd });
+        const data = await res.json();
+        setUploading(false);
+        if (!res.ok) { setFileErr(data.error || "Gagal mengupload foto"); setSaving(false); return; }
+        lampiranUrl = data.url;
+      }
+      await onUpdate(fb.id, status, balasan, lampiranUrl);
+      setSavedLampiran(lampiranUrl);
+      clearNewFile();
+      setSaved(true); setTimeout(() => setSaved(false), 2000);
+    }
+    finally { setSaving(false); setUploading(false); }
+  };
+
+  const handleForward = async () => {
+    if (!onForward) return;
+    setForwarding(true);
+    try { await onForward(fb.id); }
+    finally { setForwarding(false); }
   };
 
   return (
@@ -128,6 +186,27 @@ function DetailPanel({ fb, onClose, onUpdate }: {
             </div>
           )}
 
+          {/* Forwarding (hanya admin biasa / SUPER_ADMIN) */}
+          {isSuper && (
+            <div className="rounded p-3 border" style={{ borderColor: kat.color + "40", backgroundColor: kat.color + "0d" }}>
+              <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Penerusan ke Admin Kategori</p>
+              {fb.diteruskan ? (
+                <div className="flex items-center gap-2 text-sm font-medium" style={{ color: kat.color }}>
+                  <CheckCircle2 size={15} />
+                  Sudah diteruskan ke Admin {kat.label}
+                  {fb.diteruskanAt && <span className="text-xs text-slate-400 font-normal">({formatTanggal(fb.diteruskanAt)})</span>}
+                </div>
+              ) : (
+                <button onClick={handleForward} disabled={forwarding}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded font-semibold text-sm text-white transition-all hover:opacity-90 disabled:opacity-60"
+                  style={{ backgroundColor: kat.color }}>
+                  {forwarding ? <RefreshCw size={15} className="animate-spin" /> : <Send size={15} />}
+                  {forwarding ? "Meneruskan..." : `Teruskan ke Admin ${kat.label}`}
+                </button>
+              )}
+            </div>
+          )}
+
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Ubah Status</p>
             <div className="grid grid-cols-4 gap-2">
@@ -156,11 +235,75 @@ function DetailPanel({ fb, onClose, onUpdate }: {
               onBlur={(e) => (e.target.style.borderColor = "#e2e8f0")} />
           </div>
 
-          <button onClick={handleSave} disabled={saving}
+          {/* Lampiran balasan dari admin (mis. bukti penyelesaian) */}
+          <div>
+            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 block">
+              {status === "selesai" ? "Foto Bukti Penyelesaian" : "Foto Lampiran Balasan"}
+              <span className="text-slate-400 font-normal normal-case"> (opsional, maks 5 MB)</span>
+            </label>
+            <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp"
+              onChange={handleFileChange} className="hidden" />
+
+            {preview ? (
+              /* Foto baru yang belum disimpan */
+              <div className="relative rounded overflow-hidden border border-slate-200">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={preview} alt="Preview" className="w-full h-40 object-cover" />
+                <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                  <button type="button" onClick={() => window.open(preview!, "_blank")}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium text-white" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+                    <Eye size={13} />Lihat
+                  </button>
+                  <button type="button" onClick={clearNewFile}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium text-white" style={{ backgroundColor: "rgba(239,68,68,0.7)" }}>
+                    <Trash2 size={13} />Hapus
+                  </button>
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 px-3 py-1.5 text-[10px] text-white font-medium truncate" style={{ backgroundColor: "rgba(0,0,0,0.4)" }}>
+                  {file?.name} (belum disimpan)
+                </div>
+              </div>
+            ) : savedLampiran ? (
+              /* Foto lampiran balasan yang sudah tersimpan */
+              <div className="relative rounded overflow-hidden border border-slate-200">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={savedLampiran} alt="Lampiran balasan" className="w-full h-40 object-cover" />
+                <div className="absolute inset-0 bg-black/30 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                  <button type="button" onClick={() => window.open(savedLampiran!, "_blank")}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium text-white" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+                    <Eye size={13} />Lihat
+                  </button>
+                  <button type="button" onClick={() => fileRef.current?.click()}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium text-white" style={{ backgroundColor: "rgba(0,0,0,0.5)" }}>
+                    <ImageIcon size={13} />Ganti
+                  </button>
+                  <button type="button" onClick={() => setSavedLampiran(null)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium text-white" style={{ backgroundColor: "rgba(239,68,68,0.7)" }}>
+                    <Trash2 size={13} />Hapus
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button type="button" onClick={() => fileRef.current?.click()}
+                className="w-full flex flex-col items-center justify-center gap-2 py-5 rounded border-2 border-dashed transition-all hover:border-teal-400 hover:bg-teal-50"
+                style={{ borderColor: "#e2e8f0" }}>
+                <div className="w-10 h-10 rounded flex items-center justify-center" style={{ backgroundColor: "#f1f5f9" }}>
+                  <ImageIcon size={20} className="text-slate-400" />
+                </div>
+                <div className="text-center">
+                  <p className="text-xs font-medium text-slate-600">Klik untuk pilih foto</p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">JPG, PNG, WebP — Maks 5 MB</p>
+                </div>
+              </button>
+            )}
+            {fileErr && <p className="text-xs text-red-500 mt-1 flex items-center gap-1"><AlertCircle size={11} />{fileErr}</p>}
+          </div>
+
+          <button onClick={handleSave} disabled={saving || uploading}
             className="w-full flex items-center justify-center gap-2 py-3 rounded font-semibold text-sm transition-all hover:opacity-90 disabled:opacity-60"
             style={{ backgroundColor: saved ? "#10b981" : "#0f1b2d", color: "white" }}>
-            {saving ? <RefreshCw size={15} className="animate-spin" /> : saved ? <CheckCircle2 size={15} /> : <Send size={15} />}
-            {saving ? "Menyimpan..." : saved ? "Tersimpan!" : "Simpan Perubahan"}
+            {saving || uploading ? <RefreshCw size={15} className="animate-spin" /> : saved ? <CheckCircle2 size={15} /> : <Send size={15} />}
+            {uploading ? "Mengupload foto..." : saving ? "Menyimpan..." : saved ? "Tersimpan!" : "Simpan Perubahan"}
           </button>
         </div>
       </div>
@@ -424,11 +567,34 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<TabType>("aduan");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [currentRole, setCurrentRole] = useState<"SUPER_ADMIN" | "ADMIN" | null>(null);
+  const [filterKategori, setFilterKategori] = useState("semua");
+  const [me, setMe] = useState<MeInfo | null>(null);
+
+  const isSuper = me?.role === "SUPER_ADMIN";
+  const myKat = me?.kategori ? getKategori(me.kategori) : null;
+
+  // Ambil identitas admin yang sedang login (role + kategori)
+  useEffect(() => {
+    fetch("/api/admin/me")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => { if (data) setMe(data); })
+      .catch(() => {});
+  }, []);
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     router.push("/admin/login");
+  };
+
+  const handleForward = async (id: string) => {
+    const res = await fetch(`/api/feedback/${id}`, {
+      method: "PATCH", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ diteruskan: true }),
+    });
+    if (!res.ok) throw new Error();
+    const updated: Feedback = await res.json();
+    setFeedbacks((prev) => prev.map((f) => f.id === id ? updated : f));
+    setSelected(updated);
   };
 
   const fetchFeedbacks = useCallback(async () => {
@@ -444,10 +610,10 @@ export default function AdminPage() {
 
   useEffect(() => { fetchFeedbacks(); }, [fetchFeedbacks]);
 
-  const handleUpdate = async (id: string, status: StatusType, balasan: string) => {
+  const handleUpdate = async (id: string, status: StatusType, balasan: string, lampiranBalasan?: string | null) => {
     const res = await fetch(`/api/feedback/${id}`, {
       method: "PATCH", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status, balasan }),
+      body: JSON.stringify({ status, balasan, ...(lampiranBalasan !== undefined && { lampiranBalasan }) }),
     });
     if (!res.ok) throw new Error();
     const updated: Feedback = await res.json();
@@ -473,14 +639,15 @@ export default function AdminPage() {
     const q = search.toLowerCase().trim();
     return feedbacks.filter((f) => {
       const statusOk = filterStatus === "semua" || f.status === filterStatus;
+      const katOk = filterKategori === "semua" || f.kategori === filterKategori;
       const searchOk = !q ||
         f.judul.toLowerCase().includes(q) ||
         f.mahasiswa.nama.toLowerCase().includes(q) ||
         f.mahasiswa.nim.toLowerCase().includes(q) ||
         f.deskripsi.toLowerCase().includes(q);
-      return statusOk && searchOk;
+      return statusOk && katOk && searchOk;
     });
-  }, [feedbacks, filterStatus, search]);
+  }, [feedbacks, filterStatus, filterKategori, search]);
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#f0f2f5" }}>
@@ -490,21 +657,23 @@ export default function AdminPage() {
           {/* Logo + Nav */}
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded flex items-center justify-center" style={{ backgroundColor: "#0d9488" }}>
+              <div className="w-7 h-7 rounded flex items-center justify-center" style={{ backgroundColor: myKat ? myKat.color : "#0d9488" }}>
                 <ShieldAlert size={15} className="text-white" />
               </div>
-              <span className="text-white font-semibold text-sm serif">Admin Panel</span>
+              <span className="text-white font-semibold text-sm serif">
+                {isSuper ? "Admin Panel · Penerus" : myKat ? `Admin ${myKat.label}` : "Admin Panel"}
+              </span>
             </div>
             {/* Desktop nav */}
             <div className="hidden md:flex items-center gap-3">
               <div className="w-px h-4 bg-slate-700" />
-              <a href="/" className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors text-xs">
+              <NavLink href="/" exact className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors text-xs" activeClassName="!text-white font-semibold">
                 <ChevronLeft size={13} />Beranda
-              </a>
+              </NavLink>
               <div className="w-px h-4 bg-slate-700" />
-              <a href="/admin/dashboard" className="flex items-center gap-1.5 text-slate-400 hover:text-teal-400 transition-colors text-xs">
+              <NavLink href="/admin/dashboard" className="flex items-center gap-1.5 text-slate-400 hover:text-teal-400 transition-colors text-xs" activeClassName="!text-teal-400 font-semibold">
                 <LayoutDashboard size={13} />Dashboard
-              </a>
+              </NavLink>
             </div>
           </div>
 
@@ -536,12 +705,12 @@ export default function AdminPage() {
           <div className="md:hidden absolute top-full left-0 right-0 z-50 animate-fade-up"
             style={{ backgroundColor: "#0f1b2d", borderTop: "1px solid rgba(255,255,255,0.08)" }}>
             <div className="max-w-7xl mx-auto px-6 py-3 space-y-1">
-              <a href="/" className="flex items-center gap-2.5 px-3 py-2.5 rounded text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+              <NavLink href="/" exact onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2.5 px-3 py-2.5 rounded text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-all" activeClassName="!text-white bg-white/5">
                 <ChevronLeft size={15} />Kembali ke Beranda
-              </a>
-              <a href="/admin/dashboard" className="flex items-center gap-2.5 px-3 py-2.5 rounded text-sm text-slate-400 hover:text-teal-400 hover:bg-white/5 transition-all">
+              </NavLink>
+              <NavLink href="/admin/dashboard" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2.5 px-3 py-2.5 rounded text-sm text-slate-400 hover:text-teal-400 hover:bg-white/5 transition-all" activeClassName="!text-teal-400 bg-white/5">
                 <LayoutDashboard size={15} />Dashboard Statistik
-              </a>
+              </NavLink>
               <div className="h-px my-1" style={{ backgroundColor: "rgba(255,255,255,0.06)" }} />
               <button onClick={fetchFeedbacks}
                 className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-all text-left">
@@ -561,7 +730,7 @@ export default function AdminPage() {
 
       <main className="max-w-7xl mx-auto px-6 py-6">
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           {[
             { label: "Total Aduan", value: stats.total,    color: "#0f1b2d", bg: "#fff",     icon: TrendingUp },
             { label: "Menunggu",    value: stats.menunggu, color: "#b45309", bg: "#fef3c7",  icon: Clock3 },
@@ -586,11 +755,13 @@ export default function AdminPage() {
 
         {/* Tabs */}
         <div className="flex items-center gap-1 mb-5 bg-white rounded p-1 border border-slate-100 w-fit max-w-full overflow-x-auto shadow-sm">
-          {([
-            { key: "aduan",      label: "Kelola Aduan",      icon: MessageSquare },
+          {(([
+            { key: "aduan",      label: isSuper ? "Kelola Aduan" : "Aduan Masuk", icon: MessageSquare },
             { key: "mahasiswa",  label: "Kelola Mahasiswa",  icon: Users },
             { key: "admin", label: "Kelola Admin", icon: ShieldAlert },
-          ] as { key: TabType; label: string; icon: React.ElementType }[]).map(({ key, label, icon: Icon }) => (
+          ] as { key: TabType; label: string; icon: React.ElementType }[]).filter(
+            (t) => isSuper || t.key === "aduan"
+          )).map(({ key, label, icon: Icon }) => (
             <button key={key} onClick={() => setActiveTab(key)}
               className="flex items-center gap-1.5 px-4 py-2 rounded text-xs font-semibold transition-all shrink-0 whitespace-nowrap"
               style={activeTab === key
@@ -635,6 +806,31 @@ export default function AdminPage() {
                 </button>
               ))}
             </div>
+
+            {/* Filter kategori (hanya admin biasa / SUPER_ADMIN) */}
+            {isSuper && (
+              <div className="flex flex-wrap items-center gap-2 mb-4">
+                <button onClick={() => setFilterKategori("semua")}
+                  className="px-3 py-1.5 rounded text-xs font-semibold transition-all"
+                  style={filterKategori === "semua"
+                    ? { backgroundColor: "#0f1b2d", color: "white" }
+                    : { backgroundColor: "white", color: "#64748b", border: "1px solid #e2e8f0" }}>
+                  Semua Kategori
+                </button>
+                {KATEGORI_LIST.map((kat) => {
+                  const Icon = kat.icon; const sel = filterKategori === kat.value;
+                  return (
+                    <button key={kat.value} onClick={() => setFilterKategori(kat.value)}
+                      className="px-3 py-1.5 rounded text-xs font-semibold transition-all flex items-center gap-1.5"
+                      style={sel
+                        ? { backgroundColor: kat.color, color: "white" }
+                        : { backgroundColor: "white", color: kat.color, border: `1px solid ${kat.color}40` }}>
+                      <Icon size={12} />{kat.label} ({feedbacks.filter(f => f.kategori === kat.value).length})
+                    </button>
+                  );
+                })}
+              </div>
+            )}
 
             {error && (
               <div className="rounded border border-red-100 bg-red-50 p-4 mb-4 flex items-center gap-3">
@@ -698,6 +894,13 @@ export default function AdminPage() {
                         </span>
                         <div className="col-span-2 flex items-center gap-2">
                           <StatusBadge status={fb.status} />
+                          {isSuper && fb.diteruskan && (
+                            <span title={`Diteruskan ke Admin ${kat.label}`}
+                              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold"
+                              style={{ backgroundColor: kat.color + "18", color: kat.color }}>
+                              <Send size={9} />Diteruskan
+                            </span>
+                          )}
                           <button onClick={(e) => { e.stopPropagation(); setDeleteConfirm(fb.id); }}
                             className="p-1 rounded opacity-0 group-hover:opacity-100 transition-all hover:bg-red-50 text-slate-300 hover:text-red-400">
                             <Trash2 size={13} />
@@ -717,13 +920,13 @@ export default function AdminPage() {
         )}
 
         {/* Tab: Mahasiswa */}
-        {activeTab === "mahasiswa" && <MahasiswaTab />}
+        {isSuper && activeTab === "mahasiswa" && <MahasiswaTab />}
 
         {/* Tab: Kelola Admin */}
-        {activeTab === "admin" && <KelolaAdmin />}
+        {isSuper && activeTab === "admin" && <KelolaAdmin />}
       </main>
 
-      {selected && <DetailPanel fb={selected} onClose={() => setSelected(null)} onUpdate={handleUpdate} />}
+      {selected && <DetailPanel fb={selected} onClose={() => setSelected(null)} onUpdate={handleUpdate} isSuper={!!isSuper} onForward={handleForward} />}
 
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: "rgba(15,27,45,0.6)" }}>
@@ -759,6 +962,7 @@ function KelolaAdmin() {
     username: "",
     password: "",
     role: "ADMIN",
+    kategori: "",
   });
 
   // Ambil daftar admin
@@ -803,6 +1007,10 @@ function KelolaAdmin() {
       setError("Username dan password wajib diisi");
       return;
     }
+    if (newAdmin.role === "ADMIN" && !newAdmin.kategori) {
+      setError("Pilih kategori untuk admin ini");
+      return;
+    }
 
     try {
       const res = await fetch("/api/admin", {
@@ -819,7 +1027,7 @@ function KelolaAdmin() {
       }
 
       setSuccess("Admin baru berhasil ditambahkan!");
-      setNewAdmin({ username: "", password: "", role: "ADMIN" });
+      setNewAdmin({ username: "", password: "", role: "ADMIN", kategori: "" });
       fetchAdmins(); // refresh list
     } catch (err) {
       setError("Terjadi kesalahan saat menambahkan admin");
@@ -865,11 +1073,13 @@ function KelolaAdmin() {
           />
           <select
             className="border border-slate-300 p-2.5 rounded text-sm focus:outline-none focus:border-teal-600"
-            value={newAdmin.role}
-            onChange={(e) => setNewAdmin({ ...newAdmin, role: e.target.value })}
+            value={newAdmin.kategori}
+            onChange={(e) => setNewAdmin({ ...newAdmin, kategori: e.target.value })}
           >
-            <option value="ADMIN">Admin Biasa</option>
-            {/* <option value="SUPER_ADMIN">Super Admin</option> */}
+            <option value="">— Pilih Kategori —</option>
+            {KATEGORI_LIST.map((kat) => (
+              <option key={kat.value} value={kat.value}>{kat.label}</option>
+            ))}
           </select>
 
           <button
@@ -900,6 +1110,7 @@ function KelolaAdmin() {
                 <tr className="border-b bg-slate-50">
                   <th className="text-left py-3 px-4 font-medium">Username</th>
                   <th className="text-left py-3 px-4 font-medium">Role</th>
+                  <th className="text-left py-3 px-4 font-medium">Kategori</th>
                   <th className="text-left py-3 px-4 font-medium">Dibuat Pada</th>
                 </tr>
               </thead>
@@ -917,6 +1128,18 @@ function KelolaAdmin() {
                       >
                         {admin.role}
                       </span>
+                    </td>
+                    <td className="py-3 px-4">
+                      {admin.kategori ? (
+                        (() => { const k = getKategori(admin.kategori); const KIcon = k.icon; return (
+                          <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs font-medium"
+                            style={{ backgroundColor: k.color + "15", color: k.color }}>
+                            <KIcon size={11} />{k.label}
+                          </span>
+                        ); })()
+                      ) : (
+                        <span className="text-xs text-slate-400">—</span>
+                      )}
                     </td>
                     <td className="py-3 px-4 text-xs text-slate-500">
                       {new Date(admin.createdAt).toLocaleDateString("id-ID", {

@@ -151,13 +151,13 @@ export default function HomePage() {
                 {link.label}
               </a>
             ))}
-            <a
+            <Link
               href="/login"
               className="inline-flex items-center gap-2 px-4 py-2 rounded font-semibold text-sm transition-all hover:opacity-90"
               style={{ backgroundColor: "#0d9488", color: "white" }}
             >
               <LogIn size={15} />Masuk
-            </a>
+            </Link>
           </nav>
 
           {/* Tombol Hamburger (mobile) */}
@@ -185,14 +185,14 @@ export default function HomePage() {
                   {link.label}
                 </a>
               ))}
-              <a
+              <Link
                 href="/login"
                 onClick={() => setMenuOpen(false)}
                 className="mt-2 inline-flex items-center justify-center gap-2 px-4 py-3 rounded font-semibold text-sm transition-all hover:opacity-90"
                 style={{ backgroundColor: "#0d9488", color: "white" }}
               >
                 <LogIn size={15} />Masuk Sekarang
-              </a>
+              </Link>
             </nav>
           </div>
         )}
@@ -296,11 +296,11 @@ export default function HomePage() {
               <Users size={32} className="text-teal-400 mx-auto mb-4" />
               <h3 className="serif text-2xl text-white mb-2">Siap Menyampaikan Aduan?</h3>
               <p className="text-slate-400 text-sm mb-6">Login sekarang dan bantu kami tingkatkan kualitas fasilitas kampus</p>
-              <a href="/login"
+              <Link href="/login"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded font-semibold text-sm transition-all hover:opacity-90"
                 style={{ backgroundColor: "#0d9488", color: "white" }}>
                 <LogIn size={15} />Masuk Sekarang
-              </a>
+              </Link>
             </div>
           </div>
         </section>

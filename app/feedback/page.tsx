@@ -21,6 +21,7 @@ interface Feedback {
   status: StatusType; createdAt: string; balasan?: string | null;
   mahasiswa: Mahasiswa; mahasiswaId: string;
   lampiran?: string | null;
+  lampiranBalasan?: string | null;
 }
 
 const KATEGORI_LIST = [
@@ -252,6 +253,22 @@ function FeedbackCard({ fb, delay, currentUserId, onEdit, onDelete }: {
                   {fb.status === "diterima" ? "✓ Balasan Resmi" : fb.status === "selesai" ? "✓ Selesai" : "✗ Alasan Penolakan"}
                 </p>
                 <p className="text-sm" style={{ color: fb.status === "diterima" ? "#04355e" : fb.status === "selesai" ? "#065f46" : "#7f1d1d" }}>{fb.balasan}</p>
+              </div>
+            )}
+            {fb.lampiranBalasan && (
+              <div className="rounded overflow-hidden border border-slate-200">
+                <div className="px-3 py-2 flex items-center justify-between" style={{ backgroundColor: "#f8f7f4" }}>
+                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <ImageIcon size={11} />Foto Lampiran dari Admin
+                  </p>
+                  <a href={fb.lampiranBalasan} target="_blank" rel="noopener noreferrer"
+                    className="text-[10px] font-medium text-teal-600 hover:text-teal-700 flex items-center gap-1">
+                    <Eye size={11} />Lihat penuh
+                  </a>
+                </div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={fb.lampiranBalasan} alt="Lampiran balasan admin" className="w-full max-h-56 object-cover cursor-pointer"
+                  onClick={() => window.open(fb.lampiranBalasan!, "_blank")} />
               </div>
             )}
             {canEdit && (

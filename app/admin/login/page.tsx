@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ShieldAlert, Eye, EyeOff, Lock, User, AlertCircle, RefreshCw } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -185,7 +186,7 @@ export default function LoginPage() {
             </form>
 
             <div className="mt-6 pt-5" style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-              <a
+              <Link
                 href="/"
                 className="flex items-center justify-center text-xs transition-colors"
                 style={{ color: "#475569" }}
@@ -193,7 +194,7 @@ export default function LoginPage() {
                 onMouseLeave={(e) => ((e.target as HTMLElement).style.color = "#475569")}
               >
                 ← Kembali ke Portal Mahasiswa
-              </a>
+              </Link>
             </div>
           </div>
         </div>
