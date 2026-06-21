@@ -561,7 +561,7 @@ export default function AdminPage() {
 
       <main className="max-w-7xl mx-auto px-6 py-6">
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
           {[
             { label: "Total Aduan", value: stats.total,    color: "#0f1b2d", bg: "#fff",     icon: TrendingUp },
             { label: "Menunggu",    value: stats.menunggu, color: "#b45309", bg: "#fef3c7",  icon: Clock3 },
