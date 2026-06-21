@@ -16,17 +16,18 @@ export async function GET() {
     const menunggu = allFeedbacks.filter((f) => f.status === "menunggu").length;
     const diterima = allFeedbacks.filter((f) => f.status === "diterima").length;
     const ditolak  = allFeedbacks.filter ((f) => f.status === "ditolak").length;
+    const selesai  = allFeedbacks.filter ((f) => f.status === "selesai").length;
 
     // Per kategori
-    const kategoriMap: Record<string, { menunggu: number; diterima: number; ditolak: number }> = {};
+    const kategoriMap: Record<string, { menunggu: number; diterima: number; ditolak: number; selesai: number }> = {};
     for (const f of allFeedbacks) {
-      if (!kategoriMap[f.kategori]) kategoriMap[f.kategori] = { menunggu: 0, diterima: 0, ditolak: 0 };
-      kategoriMap[f.kategori][f.status as "menunggu" | "diterima" | "ditolak"]++;
+      if (!kategoriMap[f.kategori]) kategoriMap[f.kategori] = { menunggu: 0, diterima: 0, ditolak: 0, selesai: 0 };
+      kategoriMap[f.kategori][f.status as "menunggu" | "diterima" | "ditolak" | "selesai"]++;
     }
     const perKategori = Object.entries(kategoriMap).map(([kategori, counts]) => ({
       kategori,
       ...counts,
-      total: counts.menunggu + counts.diterima + counts.ditolak,
+      total: counts.menunggu + counts.diterima + counts.ditolak + counts.selesai,
     })).sort((a, b) => b.total - a.total);
 
     // Per bulan (6 bulan terakhir)
@@ -52,7 +53,7 @@ export async function GET() {
     const acceptRate   = total > 0 ? Math.round((diterima / total) * 100) : 0;
 
     return NextResponse.json({
-      summary: { total, menunggu, diterima, ditolak, totalMahasiswa, responseRate, acceptRate },
+      summary: { total, menunggu, diterima, ditolak, totalMahasiswa, responseRate, acceptRate, completionRate: total > 0 ? Math.round((selesai / total) * 100) : 0 },
       perKategori,
       perBulan,
     });

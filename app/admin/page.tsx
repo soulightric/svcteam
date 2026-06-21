@@ -10,7 +10,7 @@ import {
   UserPlus, Eye, EyeOff, KeyRound, Menu, Search, ImageIcon,
 } from "lucide-react";
 
-type StatusType = "menunggu" | "diterima" | "ditolak";
+type StatusType = "menunggu" | "diterima" | "ditolak" | "selesai";
 type TabType = "aduan" | "mahasiswa" | "admin";
 
 interface Feedback {
@@ -37,8 +37,9 @@ const KATEGORI_LIST = [
 
 const STATUS_CONFIG: Record<StatusType, { label: string; color: string; bg: string; border: string; icon: React.ElementType }> = {
   menunggu: { label: "Menunggu", color: "#b45309", bg: "#fef3c7", border: "#fcd34d", icon: Clock3 },
-  diterima: { label: "Diterima", color: "#065f46", bg: "#d1fae5", border: "#6ee7b7", icon: CheckCircle2 },
+  diterima: { label: "Diterima", color: "#04355e", bg: "#d1fae5", border: "#6ee7b7", icon: CheckCircle2 },
   ditolak:  { label: "Ditolak",  color: "#991b1b", bg: "#fee2e2", border: "#fca5a5", icon: XCircle },
+  selesai:  { label: "Selesai",  color: "#166534", bg: "#d1fae5", border: "#6ee7b7", icon: CheckCircle2 },
 };
 
 function formatTanggal(iso: string) {
@@ -129,8 +130,8 @@ function DetailPanel({ fb, onClose, onUpdate }: {
 
           <div>
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Ubah Status</p>
-            <div className="grid grid-cols-3 gap-2">
-              {(["menunggu", "diterima", "ditolak"] as StatusType[]).map((s) => {
+            <div className="grid grid-cols-4 gap-2">
+              {(["menunggu", "diterima", "ditolak", "selesai"] as StatusType[]).map((s) => {
                 const cfg = STATUS_CONFIG[s]; const Icon = cfg.icon; const sel = status === s;
                 return (
                   <button key={s} onClick={() => setStatus(s)}
@@ -321,14 +322,15 @@ function MahasiswaTab() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-12 gap-4 px-5 py-3 bg-slate-50 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+            <div className="overflow-x-auto">
+            <div className="grid grid-cols-12 gap-4 px-5 py-3 bg-slate-50 text-[10px] font-semibold text-slate-400 uppercase tracking-wider min-w-[560px]">
               <span className="col-span-2">NIM</span>
               <span className="col-span-4">Nama</span>
               <span className="col-span-2 text-center">Aduan</span>
               <span className="col-span-2">Terdaftar</span>
               <span className="col-span-2">Aksi</span>
             </div>
-            <div className="divide-y divide-slate-50">
+            <div className="divide-y divide-slate-50 min-w-[560px]">
               {list.map((m) => (
                 <div key={m.id} className="grid grid-cols-12 gap-4 px-5 py-3.5 items-center hover:bg-slate-50 transition-colors group">
                   <span className="col-span-2 text-xs font-mono text-slate-600">{m.nim}</span>
@@ -352,6 +354,7 @@ function MahasiswaTab() {
                   </div>
                 </div>
               ))}
+            </div>
             </div>
           </>
         )}
@@ -430,6 +433,7 @@ export default function AdminPage() {
 
   const fetchFeedbacks = useCallback(async () => {
     try {
+      setLoading(true);
       setError("");
       const res = await fetch("/api/feedback");
       if (!res.ok) throw new Error();
@@ -463,6 +467,7 @@ export default function AdminPage() {
     menunggu: feedbacks.filter((f) => f.status === "menunggu").length,
     diterima: feedbacks.filter((f) => f.status === "diterima").length,
     ditolak:  feedbacks.filter((f) => f.status === "ditolak").length,
+    selesai:  feedbacks.filter((f) => f.status === "selesai").length,
   };
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
@@ -508,7 +513,7 @@ export default function AdminPage() {
             <button onClick={fetchFeedbacks}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium text-slate-400 hover:text-white transition-colors"
               style={{ border: "1px solid rgba(255,255,255,0.1)" }}>
-              <RefreshCw size={12} />Refresh
+              <RefreshCw size={12} className={loading ? "animate-spin" : ""} />Refresh
             </button>
             <button onClick={handleLogout}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium text-slate-400 hover:bg-red-500 text-white transition-colors"
@@ -540,7 +545,7 @@ export default function AdminPage() {
               <div className="h-px my-1" style={{ backgroundColor: "rgba(255,255,255,0.06)" }} />
               <button onClick={fetchFeedbacks}
                 className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded text-sm text-slate-400 hover:text-white hover:bg-white/5 transition-all text-left">
-                <RefreshCw size={15} />Refresh Data
+                <RefreshCw size={15} className={loading ? "animate-spin" : ""} />Refresh Data
               </button>
               <button onClick={handleLogout}
                 className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded text-sm transition-all text-left"
@@ -560,8 +565,9 @@ export default function AdminPage() {
           {[
             { label: "Total Aduan", value: stats.total,    color: "#0f1b2d", bg: "#fff",     icon: TrendingUp },
             { label: "Menunggu",    value: stats.menunggu, color: "#b45309", bg: "#fef3c7",  icon: Clock3 },
-            { label: "Diterima",    value: stats.diterima, color: "#065f46", bg: "#d1fae5",  icon: CheckCircle2 },
+            { label: "Diterima",    value: stats.diterima, color: "#04355e", bg: "#d1fae5",  icon: CheckCircle2 },
             { label: "Ditolak",     value: stats.ditolak,  color: "#991b1b", bg: "#fee2e2",  icon: XCircle },
+            { label: "Selesai",     value: stats.selesai,  color: "#1b8129", bg: "#dbeafe",  icon: CheckCircle2 },
           ].map(({ label, value, color, bg, icon: Icon }) => (
             <div key={label} className="rounded p-4 shadow-sm border border-slate-100" style={{ backgroundColor: bg }}>
               <div className="flex items-center justify-between mb-2">
@@ -579,14 +585,14 @@ export default function AdminPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex items-center gap-1 mb-5 bg-white rounded p-1 border border-slate-100 w-fit shadow-sm">
+        <div className="flex items-center gap-1 mb-5 bg-white rounded p-1 border border-slate-100 w-fit max-w-full overflow-x-auto shadow-sm">
           {([
             { key: "aduan",      label: "Kelola Aduan",      icon: MessageSquare },
             { key: "mahasiswa",  label: "Kelola Mahasiswa",  icon: Users },
             { key: "admin", label: "Kelola Admin", icon: ShieldAlert },
           ] as { key: TabType; label: string; icon: React.ElementType }[]).map(({ key, label, icon: Icon }) => (
             <button key={key} onClick={() => setActiveTab(key)}
-              className="flex items-center gap-1.5 px-4 py-2 rounded text-xs font-semibold transition-all"
+              className="flex items-center gap-1.5 px-4 py-2 rounded text-xs font-semibold transition-all shrink-0 whitespace-nowrap"
               style={activeTab === key
                 ? { backgroundColor: "#0f1b2d", color: "white" }
                 : { color: "#64748b" }}>
@@ -618,8 +624,8 @@ export default function AdminPage() {
               )}
             </div>
 
-            <div className="flex items-center gap-2 mb-4">
-              {(["semua", "menunggu", "diterima", "ditolak"] as const).map((s) => (
+            <div className="flex flex-wrap items-center gap-2 mb-4">
+              {(["semua", "menunggu", "diterima", "ditolak", "selesai"] as const).map((s) => (
                 <button key={s} onClick={() => setFilterStatus(s)}
                   className="px-3 py-1.5 rounded text-xs font-semibold transition-all"
                   style={filterStatus === s
@@ -657,7 +663,8 @@ export default function AdminPage() {
                   <p className="text-slate-400 text-sm">Tidak ada aduan</p>
                 </div>
               ) : (
-                <div className="divide-y divide-slate-50">
+                <div className="overflow-x-auto">
+                <div className="divide-y divide-slate-50 min-w-[680px]">
                   <div className="grid grid-cols-12 gap-4 px-5 py-3 bg-slate-50">
                     {["ID","Aduan","Pelapor","Kategori","Tanggal","Status"].map((h, i) => (
                       <p key={h} className={`text-[10px] font-semibold text-slate-400 uppercase tracking-wider ${i===0?"col-span-1":i===1?"col-span-3":i===2?"col-span-2":i===3?"col-span-2":i===4?"col-span-2":"col-span-2"}`}>{h}</p>
@@ -699,6 +706,7 @@ export default function AdminPage() {
                       </div>
                     );
                   })}
+                </div>
                 </div>
               )}
             </div>

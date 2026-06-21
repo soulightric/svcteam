@@ -37,7 +37,7 @@ export async function PATCH(
     if (requester.role === "admin") {
       // Admin bisa ubah status & balasan
       const { status, balasan } = body;
-      const validStatus = ["menunggu", "diterima", "ditolak"];
+      const validStatus = ["menunggu", "diterima", "ditolak", "selesai"];
       if (status && !validStatus.includes(status)) {
         return NextResponse.json({ error: "Status tidak valid" }, { status: 400 });
       }

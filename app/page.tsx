@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import {
   MessageSquare, CheckCircle2, Clock3, XCircle,
-  TrendingUp, ArrowRight, ShieldAlert, LogIn, Users,
+  TrendingUp, ArrowRight, ShieldAlert, LogIn, Users, CheckCheck,
+  Menu, X
 } from "lucide-react";
 import Image from "next/image";
 import Link from 'next/link';
@@ -13,24 +14,32 @@ interface Stats {
   menunggu: number;
   diterima: number;
   ditolak: number;
+  selesai: number;
 }
 
 export default function HomePage() {
-  const [stats, setStats] = useState<Stats>({ total: 0, menunggu: 0, diterima: 0, ditolak: 0 });
+  const [stats, setStats] = useState<Stats>({ total: 0, menunggu: 0, diterima: 0, ditolak: 0, selesai: 0 });
   const [loading, setLoading] = useState(true);
-  const [count, setCount] = useState({ total: 0, menunggu: 0, diterima: 0, ditolak: 0 });
+  const [count, setCount] = useState({ total: 0, menunggu: 0, diterima: 0, ditolak: 0, selesai: 0 });
 
-  // ==================== SLIDER STATE ====================
+  // Slider state
   const heroImages = [
-    "https://ith.ac.id/public/carouselImg/2024-11-22T00-57-29-151Z.jpeg",      // Gambar 1
-  "https://ith.ac.id/public/carouselImg/2024-11-22T00-56-59-919Z.jpeg",      // Gambar 2
-  "https://ith.ac.id/public/carouselImg/2024-11-22T01-02-08-093Z.jpeg",    // Gambar 3
-  "https://ith.ac.id/public/carouselImg/2024-11-22T01-00-23-481Z.jpeg",    // Gambar 4
+  "https://ith.ac.id/public/carouselImg/2024-11-22T00-57-29-151Z.jpeg", 
+  "https://ith.ac.id/public/carouselImg/2024-11-22T00-56-59-919Z.jpeg",     
+  "https://ith.ac.id/public/carouselImg/2024-11-22T01-02-08-093Z.jpeg",    
+  "https://ith.ac.id/public/carouselImg/2024-11-22T01-00-23-481Z.jpeg",  
   ];
 
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // Auto slide setiap 5 detik
+  // Mobile menu state
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // Daftar link navigasi
+  const navLinks = [
+    { label: "Web Utama", href: "https://ith.ac.id"},
+  ];
+
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % heroImages.length);
@@ -38,7 +47,7 @@ export default function HomePage() {
     return () => clearInterval(interval);
   }, []);
 
-  // ==================== ANIMASI COUNTER ====================
+  // Animasi counter
   useEffect(() => {
     fetch("/api/stats")
       .then((r) => r.json())
@@ -68,6 +77,7 @@ export default function HomePage() {
         menunggu: Math.round(stats.menunggu * ease),
         diterima: Math.round(stats.diterima * ease),
         ditolak:  Math.round(stats.ditolak  * ease),
+        selesai:  Math.round(stats.selesai  * ease),
       });
 
       if (step >= steps) clearInterval(timer);
@@ -99,6 +109,7 @@ export default function HomePage() {
         menunggu: Math.round(stats.menunggu * ease),
         diterima: Math.round(stats.diterima * ease),
         ditolak:  Math.round(stats.ditolak  * ease),
+        selesai:  Math.round(stats.selesai  * ease),
       });
       if (step >= steps) clearInterval(timer);
     }, interval);
@@ -108,18 +119,16 @@ export default function HomePage() {
   const statCards = [
     { label: "Total Aduan",  value: count.total,    color: "#0d9488", bg: "#f0fdfa", border: "#99f6e4", icon: TrendingUp },
     { label: "Menunggu",     value: count.menunggu, color: "#b45309", bg: "#fef3c7", border: "#fcd34d", icon: Clock3 },
-    { label: "Diterima",     value: count.diterima, color: "#065f46", bg: "#d1fae5", border: "#6ee7b7", icon: CheckCircle2 },
+    { label: "Diterima",     value: count.diterima, color: "#04355e", bg: "#d1fae5", border: "#6ee7b7", icon: CheckCircle2 },
     { label: "Ditolak",      value: count.ditolak,  color: "#991b1b", bg: "#fee2e2", border: "#fca5a5", icon: XCircle },
+    { label: "Selesai",      value: count.selesai,  color: "#166534", bg: "#dcfce7", border: "#86efac", icon: CheckCheck },
   ];
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: "#f8f7f4" }}>
-      {/* ── Header ── */}
-      <header className="relative overflow-hidden noise-bg" style={{ backgroundColor: "#0f1b2d" }}>
-        <div className="absolute inset-0 opacity-15 " style={{
-          background: "radial-gradient(ellipse 70% 60% at 15% 50%, #f59e0b, transparent), radial-gradient(ellipse 50% 40% at 85% 20%, #0d9488, transparent)",
-        }} />
-        <div className="relative max-w-5xl mx-auto px-6 py-5 flex items-center justify-between">
+      {/* ── Header (transparent blur / glassmorphism) ── */}
+      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md border-b border-white/10" style={{ backgroundColor: "rgba(15,27,45,0.45)" }}>
+        <div className="relative max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded overflow-hidden shrink-0 flex items-center justify-center" style={{ backgroundColor: "transparent" }}>
                 <Image src="/logo.png" alt="Logo" width={36} height={36} className="w-full h-full object-contain"
@@ -130,16 +139,68 @@ export default function HomePage() {
               <h1 className="text-white font-bold text-base leading-none serif">SVC</h1>
             </div>
           </div>
-          <a href="/admin/login" className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-all hover:opacity-80"
-            style={{ backgroundColor: "rgba(255,255,255,0.08)", color: "#94a3b8", border: "1px solid rgba(255,255,255,0.1)" }}>
-            <ShieldAlert size={12} />Admin
-          </a>
+
+          {/* Navigasi Desktop (kanan) */}
+          <nav className="hidden md:flex items-center gap-8">
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="text-sm font-medium text-slate-200 hover:text-teal-400 transition-colors"
+              >
+                {link.label}
+              </a>
+            ))}
+            <a
+              href="/login"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded font-semibold text-sm transition-all hover:opacity-90"
+              style={{ backgroundColor: "#0d9488", color: "white" }}
+            >
+              <LogIn size={15} />Masuk
+            </a>
+          </nav>
+
+          {/* Tombol Hamburger (mobile) */}
+          <button
+            onClick={() => setMenuOpen((v) => !v)}
+            className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded text-white hover:bg-white/10 transition-colors"
+            aria-label="Toggle menu"
+            aria-expanded={menuOpen}
+          >
+            {menuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
         </div>
+
+        {/* Menu Mobile (dropdown) */}
+        {menuOpen && (
+          <div className="md:hidden border-t border-white/10 backdrop-blur-md" style={{ backgroundColor: "rgba(15,27,45,0.85)" }}>
+            <nav className="max-w-5xl mx-auto px-6 py-4 flex flex-col gap-1">
+              {navLinks.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMenuOpen(false)}
+                  className="py-2.5 text-sm font-medium text-slate-200 hover:text-teal-400 transition-colors"
+                >
+                  {link.label}
+                </a>
+              ))}
+              <a
+                href="/login"
+                onClick={() => setMenuOpen(false)}
+                className="mt-2 inline-flex items-center justify-center gap-2 px-4 py-3 rounded font-semibold text-sm transition-all hover:opacity-90"
+                style={{ backgroundColor: "#0d9488", color: "white" }}
+              >
+                <LogIn size={15} />Masuk Sekarang
+              </a>
+            </nav>
+          </div>
+        )}
       </header>
 
       {/* ── Hero ── */}
       <main className="flex-1">
-        <section className="relative overflow-hidden noise-bg pb-16 pt-16" style={{ backgroundColor: "#0f1b2d" }}>
+        <section className="relative overflow-hidden noise-bg pb-16 pt-32" style={{ backgroundColor: "#0f1b2d" }}>
           {/* Background Image Slider */}
           <div className="absolute inset-0 z-0">
             {heroImages.map((image, index) => (
@@ -155,7 +216,7 @@ export default function HomePage() {
               />
             ))}
             {/* Overlay gelap */}
-            <div className="absolute inset-0 bg-black/60" />
+            <div className="absolute inset-0 bg-black/20" />
           </div>
 
           {/* Konten Teks */}
@@ -166,7 +227,7 @@ export default function HomePage() {
               Sistem Aktif — Aduan Diproses 3–5 Hari Kerja
             </div>
 
-            <h2 className="serif text-4xl md:text-5xl font-normal text-white leading-tight mb-4">
+            <h2 className="serif text-4xl md:text-5xl font-bold text-white leading-tight mb-4">
               Suara Mahasiswa,<br />
               <span style={{ color: "#fcd34d" }}>Kampus Lebih Baik</span>
             </h2>
@@ -174,16 +235,7 @@ export default function HomePage() {
             <p className="text-slate-300 text-sm md:text-base leading-relaxed max-w-xl mx-auto mb-10">
               Platform pengaduan dan feedback fasilitas kampus. Setiap masukan Anda akan ditindaklanjuti oleh tim yang berwenang.
             </p>
-
-            <a href="/login"
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded font-semibold text-sm transition-all hover:opacity-90 active:scale-[0.98] shadow-lg"
-              style={{ backgroundColor: "#0d9488", color: "white", boxShadow: "0 8px 32px rgba(13,148,136,0.4)" }}>
-              <LogIn size={17} />
-              Login & Kirim Aduan
-              <ArrowRight size={15} />
-            </a>
-
-            <p className="text-xs text-slate-500 mt-3">
+            <p className="text-xs text-emerald-500 mt-3">
               Khusus mahasiswa terdaftar — gunakan NIM dan password Anda
             </p>
           </div>
@@ -191,7 +243,7 @@ export default function HomePage() {
 
         {/* ── Stats Section ── */}
         <section className="max-w-5xl mx-auto px-6 -mt-8 relative z-10 mb-16">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {statCards.map(({ label, value, color, bg, border, icon: Icon }) => (
               <div key={label}
                 className="rounded p-5 text-center shadow-sm transition-transform hover:-translate-y-0.5"

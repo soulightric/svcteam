@@ -49,7 +49,7 @@ export default function LoginMahasiswaPage() {
         backgroundSize: "48px 48px",
       }} />
 
-      <div className="relative w-full max-w-sm animate-fade-up">
+      <div className="relative w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 rounded overflow-hidden flex items-center justify-center mx-auto mb-4"
@@ -70,7 +70,7 @@ export default function LoginMahasiswaPage() {
           <div className="p-7">
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <div className="flex items-center gap-2.5 px-3 py-2.5 rounded text-xs animate-fade-up"
+                <div className="flex items-center gap-2.5 px-3 py-2.5 rounded text-xs"
                   style={{ backgroundColor: "rgba(239,68,68,0.15)", border: "1px solid rgba(239,68,68,0.3)", color: "#fca5a5" }}>
                   <AlertCircle size={13} className="shrink-0" />{error}
                 </div>

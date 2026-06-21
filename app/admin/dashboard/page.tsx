@@ -15,14 +15,14 @@ import {
 // ── Types ────────────────────────────────────────────────────────────────────
 
 interface Summary {
-  total: number; menunggu: number; diterima: number; ditolak: number;
-  totalMahasiswa: number; responseRate: number; acceptRate: number;
+  total: number; menunggu: number; diterima: number; ditolak: number ; selesai: number;
+  totalMahasiswa: number; responseRate: number; acceptRate: number ; completionRate: number;
 }
 interface KategoriData {
-  kategori: string; total: number; menunggu: number; diterima: number; ditolak: number;
+  kategori: string; total: number; menunggu: number; diterima: number; ditolak: number; selesai: number;
 }
 interface BulanData {
-  bulan: string; total: number; menunggu: number; diterima: number; ditolak: number;
+  bulan: string; total: number; menunggu: number; diterima: number; ditolak: number; selesai: number;
 }
 interface DashboardData {
   summary: Summary;
@@ -38,8 +38,8 @@ const KATEGORI_LABELS: Record<string, string> = {
   laboratorium: "Lab", transportasi: "Transportasi",
 };
 
-const STATUS_COLORS = { menunggu: "#f59e0b", diterima: "#10b981", ditolak: "#ef4444" };
-const PIE_COLORS = ["#f59e0b", "#10b981", "#ef4444"];
+const STATUS_COLORS = { menunggu: "#f59e0b", diterima: "#10b981", ditolak: "#ef4444", selesai: "#166534" };
+const PIE_COLORS = ["#f59e0b", "#10b981", "#ef4444", "#166534"];
 
 // ── Custom Tooltip ────────────────────────────────────────────────────────────
 
@@ -111,6 +111,7 @@ export default function DashboardPage() {
     { name: "Menunggu", value: data.summary.menunggu },
     { name: "Diterima", value: data.summary.diterima },
     { name: "Ditolak",  value: data.summary.ditolak },
+    { name: "Selesai",  value: data.summary.selesai },
   ] : [];
 
   // Kategori chart data (shorten labels)
@@ -216,11 +217,12 @@ export default function DashboardPage() {
         {data && !loading && (
           <>
             {/* ── Stat Cards ── */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
               <StatCard label="Total Aduan"   value={data.summary.total}           color="#0d9488" bg="#f0fdfa" border="#99f6e4" icon={TrendingUp}   sub={`${data.summary.totalMahasiswa} mahasiswa terdaftar`} />
               <StatCard label="Menunggu"      value={data.summary.menunggu}        color="#b45309" bg="#fef3c7" border="#fcd34d" icon={Clock3}        sub={`${data.summary.total > 0 ? Math.round((data.summary.menunggu/data.summary.total)*100) : 0}% dari total`} />
-              <StatCard label="Diterima"      value={data.summary.diterima}        color="#065f46" bg="#d1fae5" border="#6ee7b7" icon={CheckCircle2}  sub={`Acceptance rate ${data.summary.acceptRate}%`} />
+              <StatCard label="Diterima"      value={data.summary.diterima}        color="#04355e" bg="#d1fae5" border="#6ee7b7" icon={CheckCircle2}  sub={`Acceptance rate ${data.summary.acceptRate}%`} />
               <StatCard label="Response Rate" value={data.summary.responseRate}    color="#7c3aed" bg="#f5f3ff" border="#c4b5fd" icon={Activity}      sub="Aduan sudah direspons" suffix="%" />
+              <StatCard label="Completion Rate" value={data.summary.completionRate}  color="#1b8129" bg="#d1fae5" border="#6ee7b7" icon={CheckCircle2}  sub="Aduan yang diselesaikan" suffix="%" />
             </div>
 
             {/* ── Row 1: Line Chart + Pie ── */}
@@ -250,6 +252,8 @@ export default function DashboardPage() {
                     <Line type="monotone" dataKey="menunggu" name="Menunggu" stroke="#f59e0b" strokeWidth={2.5} dot={{ r: 4, fill: "#f59e0b" }} activeDot={{ r: 6 }} />
                     <Line type="monotone" dataKey="diterima" name="Diterima" stroke="#10b981" strokeWidth={2.5} dot={{ r: 4, fill: "#10b981" }} activeDot={{ r: 6 }} />
                     <Line type="monotone" dataKey="ditolak"  name="Ditolak"  stroke="#ef4444" strokeWidth={2.5} dot={{ r: 4, fill: "#ef4444" }} activeDot={{ r: 6 }} />
+                    <Line type="monotone" dataKey="selesai"  name="Selesai"  stroke="#166534" strokeWidth={2.5} dot={{ r: 4, fill: "#166534" }} activeDot={{ r: 6 }} />
+                    <Legend wrapperStyle={{ fontSize: 11, color: "#94a3b8" }} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -328,6 +332,8 @@ export default function DashboardPage() {
                     <Bar dataKey="menunggu" name="Menunggu" fill="#f59e0b" radius={[4,4,0,0]} />
                     <Bar dataKey="diterima" name="Diterima" fill="#10b981" radius={[4,4,0,0]} />
                     <Bar dataKey="ditolak"  name="Ditolak"  fill="#ef4444" radius={[4,4,0,0]} />
+                    <Bar dataKey="selesai"  name="Selesai"  fill="#166534" radius={[4,4,0,0]} />
+                    <Legend wrapperStyle={{ fontSize: 11, color: "#94a3b8" }} />
                   </BarChart>
                 </ResponsiveContainer>
               )}

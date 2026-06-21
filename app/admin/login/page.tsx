@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ShieldAlert, Eye, EyeOff, Lock, User, AlertCircle, RefreshCw } from "lucide-react";
+import Image from "next/image";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -69,16 +70,27 @@ export default function LoginPage() {
       <div className="relative w-full max-w-sm">
         {/* Card */}
         <div
-          className="rounded overflow-hidden shadow-2xl animate-fade-up"
+          className="rounded overflow-hidden shadow-2xl"
           style={{ backgroundColor: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
         >
           {/* Header */}
           <div className="px-8 pt-8 pb-6 text-center">
             <div
               className="w-14 h-14 rounded flex items-center justify-center mx-auto mb-4"
-              style={{ backgroundColor: "#0d9488" }}
+              style={{ backgroundColor: "transparent" }}
             >
-              <ShieldAlert size={28} className="text-white" />
+              <Image
+                src="/logo.png"
+                alt="Logo"
+                width={56}
+                height={56}
+                className="w-full h-full object-contain"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = "none";
+                  (e.target as HTMLImageElement).parentElement!.innerHTML =
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
+                }}
+              />
             </div>
             <h1 className="serif text-2xl text-white mb-1">Admin Panel</h1>
             <p className="text-slate-400 text-xs">
@@ -92,7 +104,7 @@ export default function LoginPage() {
               {/* Error */}
               {error && (
                 <div
-                  className="flex items-center gap-2.5 px-3 py-2.5 rounded text-xs animate-fade-up"
+                  className="flex items-center gap-2.5 px-3 py-2.5 rounded text-xs"
                   style={{ backgroundColor: "rgba(239,68,68,0.15)", border: "1px solid rgba(239,68,68,0.3)", color: "#fca5a5" }}
                 >
                   <AlertCircle size={13} className="flex-shrink-0" />

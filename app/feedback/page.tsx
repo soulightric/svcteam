@@ -7,13 +7,13 @@ import {
   FlaskConical, Bus, CheckCircle2, Clock3, XCircle, ChevronDown,
   Send, Inbox, Filter, X, CalendarDays, MessageSquare, Hash,
   TrendingUp, AlertCircle, RefreshCw, LogOut, User, Search,
-  Pencil, Trash2, ImageIcon, Upload, Eye,
+  Pencil, Trash2, ImageIcon, Upload, Eye, CheckCheck
 } from "lucide-react";
 import Image from "next/image";
 import NotificationBell from "@/app/components/NotificationBell";
 import Link from 'next/link';
 
-type StatusType = "menunggu" | "diterima" | "ditolak";
+type StatusType = "menunggu" | "diterima" | "ditolak" | "selesai";
 
 interface Mahasiswa { nama: string; nim: string; }
 interface Feedback {
@@ -36,8 +36,9 @@ const KATEGORI_LIST = [
 
 const STATUS_CONFIG: Record<StatusType, { label: string; color: string; bg: string; border: string; icon: React.ElementType; dotClass: string }> = {
   menunggu: { label: "Menunggu", color: "#b45309", bg: "#fef3c7", border: "#fcd34d", icon: Clock3,       dotClass: "status-dot-pending" },
-  diterima: { label: "Diterima", color: "#065f46", bg: "#d1fae5", border: "#6ee7b7", icon: CheckCircle2, dotClass: "" },
+  diterima: { label: "Diterima", color: "#04355e", bg: "#d1fae5", border: "#6ee7b7", icon: CheckCircle2, dotClass: "" },
   ditolak:  { label: "Ditolak",  color: "#991b1b", bg: "#fee2e2", border: "#fca5a5", icon: XCircle,      dotClass: "" },
+  selesai:  { label: "Selesai",  color: "#166534", bg: "#dcfce7", border: "#86efac", icon: CheckCheck, dotClass: "" },
 };
 
 function formatTanggal(iso: string) {
@@ -143,7 +144,7 @@ function EditModal({ fb, onClose, onSave }: {
           <div className="flex gap-3 pt-1">
             <button onClick={onClose}
               className="flex-1 py-2.5 rounded border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors">
-              Batal
+              Batalabel
             </button>
             <button onClick={handleSave} disabled={saving}
               className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded text-sm font-semibold transition-all hover:opacity-90 disabled:opacity-60"
@@ -172,7 +173,7 @@ function FeedbackCard({ fb, delay, currentUserId, onEdit, onDelete }: {
   return (
     <div className="card-feedback bg-white rounded border border-slate-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden"
       style={{ animationDelay: `${delay}ms` }}>
-      <div className="h-1" style={{ backgroundColor: fb.status === "menunggu" ? "#f59e0b" : fb.status === "diterima" ? "#10b981" : "#ef4444" }} />
+      <div className="h-1" style={{ backgroundColor: fb.status === "menunggu" ? "#f59e0b" : fb.status === "diterima" ? "#04355e" : fb.status === "selesai" ? "#166534" : "#ef4444" }} />
       <div className="p-5">
         <div className="flex items-start justify-between gap-3 mb-3">
           <div className="flex items-center gap-2.5 min-w-0">
@@ -243,14 +244,14 @@ function FeedbackCard({ fb, delay, currentUserId, onEdit, onDelete }: {
             )}
             {fb.balasan && (
               <div className="rounded p-3" style={{
-                backgroundColor: fb.status === "diterima" ? "#d1fae5" : "#fee2e2",
-                borderLeft: `3px solid ${fb.status === "diterima" ? "#10b981" : "#ef4444"}`,
+                backgroundColor: fb.status === "diterima" ? "#d1fae5" : fb.status === "selesai" ? "#dcfce7" : "#fee2e2",
+                borderLeft: `3px solid ${fb.status === "diterima" ? "#04355e" : fb.status === "selesai" ? "#166534" : "#ef4444"}`,
               }}>
                 <p className="text-xs font-semibold uppercase tracking-wider mb-1"
-                  style={{ color: fb.status === "diterima" ? "#065f46" : "#991b1b" }}>
-                  {fb.status === "diterima" ? "✓ Balasan Resmi" : "✗ Alasan Penolakan"}
+                  style={{ color: fb.status === "diterima" ? "#04355e" : fb.status === "selesai" ? "#04355e" : "#991b1b" }}>
+                  {fb.status === "diterima" ? "✓ Balasan Resmi" : fb.status === "selesai" ? "✓ Selesai" : "✗ Alasan Penolakan"}
                 </p>
-                <p className="text-sm" style={{ color: fb.status === "diterima" ? "#064e3b" : "#7f1d1d" }}>{fb.balasan}</p>
+                <p className="text-sm" style={{ color: fb.status === "diterima" ? "#04355e" : fb.status === "selesai" ? "#065f46" : "#7f1d1d" }}>{fb.balasan}</p>
               </div>
             )}
             {canEdit && (
@@ -504,6 +505,7 @@ export default function FeedbackPage() {
     menunggu: feedbacks.filter((f) => f.status === "menunggu").length,
     diterima: feedbacks.filter((f) => f.status === "diterima").length,
     ditolak:  feedbacks.filter((f) => f.status === "ditolak").length,
+    selesai:  feedbacks.filter((f) => f.status === "selesai").length
   };
 
   // Filter + Search
@@ -574,6 +576,7 @@ export default function FeedbackPage() {
               { label: "Menunggu", value: stats.menunggu, color: "#f59e0b" },
               { label: "Diterima", value: stats.diterima, color: "#10b981" },
               { label: "Ditolak",  value: stats.ditolak,  color: "#ef4444" },
+              { label: "Selesai",  value: stats.selesai,  color: "#166534" },
             ].map((s) => (
               <div key={s.label} className="flex items-center gap-2 px-3 py-1.5 rounded"
                 style={{ backgroundColor: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.08)" }}>
@@ -601,7 +604,7 @@ export default function FeedbackPage() {
               <div className="mt-4 bg-white rounded border border-slate-100 shadow-sm p-4">
                 <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Keterangan Status</p>
                 <div className="space-y-2">
-                  {(["menunggu", "diterima", "ditolak"] as StatusType[]).map((s) => {
+                  {(["menunggu", "diterima", "ditolak", "selesai"] as StatusType[]).map((s) => {
                     const cfg = STATUS_CONFIG[s]; const Icon = cfg.icon;
                     return (
                       <div key={s} className="flex items-center gap-2.5">
@@ -610,7 +613,7 @@ export default function FeedbackPage() {
                         <div>
                           <p className="text-xs font-semibold" style={{ color: cfg.color }}>{cfg.label}</p>
                           <p className="text-[11px] text-slate-400">
-                            {s === "menunggu" ? "Bisa diedit/dihapus oleh Anda" : s === "diterima" ? "Aduan diterima dan ditindaklanjuti" : "Aduan tidak dapat diproses"}
+                            {s === "menunggu" ? "Bisa diedit/dihapus oleh Anda" : s === "diterima" ? "Aduan diterima dan ditindaklanjuti" : s === "ditolak" ? "Aduan ditolak" : "Aduan selesai"}
                           </p>
                         </div>
                       </div>
@@ -646,7 +649,7 @@ export default function FeedbackPage() {
             {/* Filter bar */}
             <div className="flex items-center gap-3 mb-5">
               <div className="flex-1 flex items-center gap-2 overflow-x-auto pb-1">
-                {(["semua", "menunggu", "diterima", "ditolak"] as const).map((s) => (
+                {(["semua", "menunggu", "diterima", "ditolak", "selesai"] as const).map((s) => (
                   <button key={s} onClick={() => setFilterStatus(s)}
                     className="px-3 py-1.5 rounded text-xs font-semibold whitespace-nowrap transition-all"
                     style={filterStatus === s
