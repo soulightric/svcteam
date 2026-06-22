@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from 'next/link';
+import { BUILD_MANIFEST } from "next/dist/shared/lib/constants";
 
 interface Stats {
   total: number;
@@ -37,7 +38,8 @@ export default function HomePage() {
 
   // Daftar link navigasi
   const navLinks = [
-    { label: "Web Utama", href: "https://ith.ac.id"},
+    { label: "Web Utama", href: "https://ith.ac.id", blank: true },
+    { label: "Easter Egg", href: "https://oguri.ilkomith.cloud", blank: true },
   ];
 
   useEffect(() => {
@@ -146,6 +148,7 @@ export default function HomePage() {
               <a
                 key={link.href}
                 href={link.href}
+                target={link.blank ? "_blank" : "_self"}
                 className="text-sm font-medium text-slate-200 hover:text-teal-400 transition-colors"
               >
                 {link.label}
@@ -179,6 +182,7 @@ export default function HomePage() {
                 <a
                   key={link.href}
                   href={link.href}
+                  target={link.blank ? "_blank" : "_self"}
                   onClick={() => setMenuOpen(false)}
                   className="py-2.5 text-sm font-medium text-slate-200 hover:text-teal-400 transition-colors"
                 >
