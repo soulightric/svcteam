@@ -251,8 +251,9 @@ Vercel tidak otomatis migrate database.
 | Status | Warna | Keterangan |
 |---|---|---|
 | **Menunggu** | 🟡 Kuning | Aduan baru masuk, belum diproses |
-| **Diterima** | 🟢 Hijau | Aduan diterima dan ditindaklanjuti |
+| **Diterima** | 🔵 Biru | Aduan diterima dan ditindaklanjuti |
 | **Ditolak** | 🔴 Merah | Aduan tidak dapat diproses |
+| **Selesai** | 🟢 Hijau | Aduan telah selesai |
 
 > Mahasiswa hanya bisa mengedit atau menghapus aduan yang masih berstatus **Menunggu**.
 
