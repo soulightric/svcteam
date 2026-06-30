@@ -16,6 +16,7 @@ Platform pengaduan dan feedback fasilitas kampus berbasis web. Mahasiswa yang te
 | Jose | 6 | JWT authentication |
 | Recharts | 3 | Grafik dashboard |
 | Lucide React | latest | Icon library |
+| cloudinary | latest | Image |
 
 ---
 
