@@ -6,9 +6,10 @@
     "dev": "prisma generate && next dev",
     "build": "prisma generate && next build",
     "start": "next start",
+    "test": "vitest run --config vitest.config.mts",
     "seed": "node prisma/seed.mjs",
     "hash-passwords": "node scripts/hash-existing-passwords.mjs",
-    "lint": "next lint",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -17,7 +18,6 @@
     "@prisma/client": "5.22.0",
     "@tailwindcss/postcss": "^4.2.2",
     "bcryptjs": "^3.0.3",
-    "cloudinary": "^2.5.1",
     "jose": "^6.2.2",
     "lucide-react": "0.487.0",
     "next": "^16.2.1",
@@ -33,8 +33,11 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "autoprefixer": "10.4.27",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.3.5",
     "postcss": "8.5.9",
     "tailwindcss": "4.2.2",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.2",
+    "vitest": "^5.0.0"
   }
 }

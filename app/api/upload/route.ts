@@ -133,12 +133,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ url: garagePublicUrl(key), public_id: key });
   } catch (e: unknown) {
-    // Tampilkan pesan asli supaya mudah di-debug (mis. masalah kredensial / jaringan)
-    const msg =
-      (e as { error?: { message?: string } })?.error?.message ||
-      (e as { message?: string })?.message ||
-      "Gagal mengupload foto";
-    console.error("UPLOAD ERROR:", msg, e);
-    return NextResponse.json({ error: msg }, { status: 500 });
+    console.error("UPLOAD ERROR:", e);
+    return NextResponse.json({ error: "Gagal mengupload foto" }, { status: 500 });
   }
 }

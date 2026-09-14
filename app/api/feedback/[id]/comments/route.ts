@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { verifyToken } from "@/lib/auth";
 import { cookies } from "next/headers";
+import { recordAudit } from "@/lib/audit";
 
 type Requester =
   | { role: "admin"; id: string; adminRole: string; kategori: string | null; username: string }
@@ -156,6 +157,16 @@ export async function POST(
         data: { balasan: isi.trim() },
       });
     }
+
+    await recordAudit({
+      action: "COMMENT_CREATED",
+      feedbackId: id,
+      actor: {
+        type: requester.role === "admin" ? "ADMIN" : "MAHASISWA",
+        id: requester.id,
+      },
+      details: { actorRole: requester.role },
+    });
 
     return NextResponse.json(comment, { status: 201 });
   } catch (error) {

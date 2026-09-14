@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { verifyToken } from "@/lib/auth";
 import { cookies } from "next/headers";
 import { notifyStatusChange } from "@/lib/email";
+import { recordAudit } from "@/lib/audit";
 
 type Requester =
   | { role: "admin"; id: string | null; adminRole: string; kategori: string | null }
@@ -112,6 +113,22 @@ export async function PATCH(
         });
       }
 
+      await recordAudit({
+        action: "FEEDBACK_UPDATED",
+        feedbackId: id,
+        actor: { type: "ADMIN", id: requester.id },
+        details: {
+          ...(status && status !== feedback.status
+            ? { fromStatus: feedback.status, toStatus: status }
+            : {}),
+          ...(balasan !== undefined ? { replyUpdated: true } : {}),
+          ...(lampiranBalasan !== undefined ? { replyAttachmentUpdated: true } : {}),
+          ...(diteruskan !== undefined && isSuper
+            ? { forwarded: !!diteruskan }
+            : {}),
+        },
+      });
+
       // Notifikasi email saat status berubah
       if (status && status !== feedback.status) {
         const baseUrl = process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL || "";
@@ -152,6 +169,16 @@ export async function PATCH(
           ...(deskripsi && { deskripsi }),
         },
         include: { mahasiswa: { select: { nama: true, nim: true } } },
+      });
+      await recordAudit({
+        action: "FEEDBACK_EDITED",
+        feedbackId: id,
+        actor: { type: "MAHASISWA", id: requester.id },
+        details: {
+          ...(kategori ? { categoryUpdated: true } : {}),
+          ...(judul ? { titleUpdated: true } : {}),
+          ...(deskripsi ? { descriptionUpdated: true } : {}),
+        },
       });
       return NextResponse.json(updated);
     }
@@ -200,6 +227,19 @@ export async function DELETE(
       );
     }
 
+    await recordAudit({
+      action: "FEEDBACK_DELETED",
+      feedbackId: id,
+      actor: {
+        type: requester.role === "admin" ? "ADMIN" : "MAHASISWA",
+        id: requester.id,
+      },
+      details: {
+        nomorTiket: feedback.nomorTiket,
+        status: feedback.status,
+        kategori: feedback.kategori,
+      },
+    });
     await prisma.feedback.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch {

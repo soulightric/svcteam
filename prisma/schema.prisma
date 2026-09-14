@@ -76,3 +76,20 @@ model TicketCounter {
   year Int @id
   last Int @default(0)
 }
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  action     String
+  entity     String   @default("Feedback")
+  entityId   String
+  actorType  String
+  actorId    String?
+  actorLabel String?
+  details    Json?
+  createdAt  DateTime @default(now())
+
+  @@index([entityId])
+  @@index([actorId])
+  @@index([createdAt])
+  @@index([action])
+}

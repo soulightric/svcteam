@@ -409,7 +409,7 @@ function MahasiswaTab() {
   };
 
   return (
-    <div>
+    <div className="w-full min-w-0">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
         <div className="flex items-center gap-2">
@@ -498,7 +498,7 @@ function MahasiswaTab() {
       )}
 
       {/* Table */}
-      <div className="bg-white rounded border border-slate-100 overflow-hidden">
+      <div className="w-full min-w-0 bg-white rounded border border-slate-100 overflow-hidden">
         {loading ? (
           <div className="p-5 space-y-3">
             {[1,2,3].map((i) => (
@@ -557,8 +557,8 @@ function MahasiswaTab() {
             {/* Mobile: cards */}
             <div className="md:hidden divide-y divide-slate-50">
               {list.map((m) => (
-                <div key={m.id} className="p-4 flex items-center justify-between gap-3">
-                  <div className="min-w-0">
+                <div key={m.id} className="p-4 flex items-start justify-between gap-3 min-w-0">
+                  <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold text-slate-800 truncate">{m.nama}</p>
                     <p className="text-xs font-mono text-slate-500 mt-0.5">{m.nim}</p>
                     <div className="flex items-center gap-2 mt-1.5">
@@ -566,7 +566,7 @@ function MahasiswaTab() {
                         style={{ backgroundColor: m._count.feedbacks > 0 ? "#dbeafe" : "#f1f5f9", color: m._count.feedbacks > 0 ? "#1d4ed8" : "#94a3b8" }}>
                         {m._count.feedbacks} aduan
                       </span>
-                      <span className="text-[10px] text-slate-400">{formatTanggal(m.createdAt)}</span>
+                      <span className="min-w-0 truncate text-[10px] text-slate-400">{formatTanggal(m.createdAt)}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
@@ -815,7 +815,7 @@ export default function AdminPage() {
         )}
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 py-6">
+      <main className="w-full max-w-7xl min-w-0 mx-auto px-4 sm:px-6 py-6 overflow-x-hidden">
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
           {[
@@ -841,7 +841,7 @@ export default function AdminPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex items-center gap-1 mb-5 bg-white rounded p-1 border border-slate-100 w-full sm:w-fit shadow-sm">
+        <div className="grid grid-cols-3 sm:flex items-stretch gap-1 mb-5 bg-white rounded p-1 border border-slate-100 w-full sm:w-fit shadow-sm">
           {(([
             { key: "aduan",      label: isSuper ? "Kelola Aduan" : "Aduan Masuk", icon: MessageSquare },
             { key: "mahasiswa",  label: "Kelola Mahasiswa",  icon: Users },
@@ -850,11 +850,11 @@ export default function AdminPage() {
             (t) => isSuper || t.key === "aduan"
           )).map(({ key, label, icon: Icon }) => (
             <button key={key} onClick={() => setActiveTab(key)}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-2.5 sm:px-4 py-2 rounded text-[11px] sm:text-xs font-semibold transition-all whitespace-nowrap"
+              className="min-w-0 flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-1.5 sm:px-4 py-2 rounded text-[11px] sm:text-xs font-semibold leading-tight transition-all"
               style={activeTab === key
                 ? { backgroundColor: "#0f1b2d", color: "white" }
                 : { color: "#64748b" }}>
-              <Icon size={13} className="shrink-0" /><span className="truncate">{label}</span>
+              <Icon size={13} className="shrink-0" /><span className="min-w-0 text-center break-words">{label}</span>
             </button>
           ))}
         </div>
@@ -926,7 +926,7 @@ export default function AdminPage() {
               </div>
             )}
 
-            <div className="bg-white rounded border border-slate-100 shadow-sm overflow-hidden">
+            <div className="w-full min-w-0 bg-white rounded border border-slate-100 shadow-sm overflow-hidden">
               {loading ? (
                 <div className="p-6 space-y-3">
                   {[1,2,3,4].map((i) => (
@@ -1186,7 +1186,7 @@ function KelolaAdmin() {
   };
 
   return (
-    <div>
+    <div className="w-full min-w-0">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
         <div className="flex items-center gap-2">
@@ -1289,7 +1289,7 @@ function KelolaAdmin() {
       )}
 
       {/* List */}
-      <div className="bg-white rounded border border-slate-100 overflow-hidden">
+      <div className="w-full min-w-0 bg-white rounded border border-slate-100 overflow-hidden">
         {loading ? (
           <div className="p-5 space-y-3">
             {[1,2,3].map((i) => (
@@ -1357,7 +1357,7 @@ function KelolaAdmin() {
             {/* Mobile: cards */}
             <div className="md:hidden divide-y divide-slate-50">
               {admins.map((admin) => (
-                <div key={admin.id} className="p-4 space-y-1.5">
+                <div key={admin.id} className="p-4 space-y-1.5 min-w-0">
                   <div className="flex items-center justify-between gap-2">
                     <p className="text-sm font-semibold text-slate-800 truncate">{admin.username}</p>
                     <span className="px-2 py-0.5 rounded text-[10px] font-semibold shrink-0"
@@ -1367,7 +1367,7 @@ function KelolaAdmin() {
                       {admin.role}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between text-xs text-slate-400">
+                  <div className="flex items-center justify-between gap-2 text-xs text-slate-400 min-w-0">
                     {admin.kategori ? (
                       (() => { const k = getKategori(admin.kategori); const KIcon = k.icon; return (
                         <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs font-medium"
@@ -1378,7 +1378,7 @@ function KelolaAdmin() {
                     ) : (
                       <span className="text-xs text-slate-400">—</span>
                     )}
-                    <span className="flex items-center gap-1">
+                    <span className="flex items-center gap-1 min-w-0 truncate">
                       <CalendarDays size={11} />{formatTanggal(admin.createdAt)}
                     </span>
                   </div>

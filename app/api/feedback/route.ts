@@ -34,8 +34,6 @@ export async function GET(req: Request) {
         where.kategori = admin.kategori;
         where.diteruskan = true;
       }
-    } else if (mahasiswa) {
-      where.mahasiswaId = mahasiswa.id;
     }
 
     if (status) where.status = status;
@@ -46,7 +44,7 @@ export async function GET(req: Request) {
         { judul: { contains: search, mode: "insensitive" } },
         { deskripsi: { contains: search, mode: "insensitive" } },
         { nomorTiket: { contains: search, mode: "insensitive" } },
-        ...(admin
+        ...(admin || mahasiswa
           ? [
               { mahasiswa: { nama: { contains: search, mode: "insensitive" } } },
               { mahasiswa: { nim: { contains: search, mode: "insensitive" } } },

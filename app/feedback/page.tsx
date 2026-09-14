@@ -277,9 +277,11 @@ function FeedbackCard({ fb, delay, currentUserId, onEdit, onDelete }: {
                   onClick={() => window.open(fb.lampiranBalasan!, "_blank")} />
               </div>
             )}
-            <div className="pt-2 border-t border-slate-100">
-              <CommentThread feedbackId={fb.id} canReply={isOwner && fb.status !== "ditolak"} />
-            </div>
+            {isOwner && (
+              <div className="pt-2 border-t border-slate-100">
+                <CommentThread feedbackId={fb.id} canReply={fb.status !== "ditolak"} />
+              </div>
+            )}
             {canEdit && (
               <p className="text-[11px] text-slate-400 flex items-center gap-1">
                 <Pencil size={10} />Aduan masih bisa diedit atau dihapus selama berstatus Menunggu
@@ -489,10 +491,28 @@ export default function FeedbackPage() {
   const fetchFeedbacks = useCallback(async () => {
     try {
       setError("");
-      const res = await fetch("/api/feedback?limit=100");
+      const res = await fetch("/api/feedback?page=1&limit=100");
       if (!res.ok) throw new Error();
-      const json = await res.json();
-      setFeedbacks(Array.isArray(json) ? json : (json.data ?? []));
+      const firstPage = await res.json();
+      const firstData = Array.isArray(firstPage) ? firstPage : (firstPage.data ?? []);
+      const totalPages = Array.isArray(firstPage) ? 1 : (firstPage.pagination?.totalPages ?? 1);
+
+      if (totalPages > 1) {
+        const remainingPages = await Promise.all(
+          Array.from({ length: totalPages - 1 }, (_, index) =>
+            fetch(`/api/feedback?page=${index + 2}&limit=100`).then((page) => {
+              if (!page.ok) throw new Error();
+              return page.json();
+            })
+          )
+        );
+        setFeedbacks([
+          ...firstData,
+          ...remainingPages.flatMap((page) => Array.isArray(page) ? page : (page.data ?? [])),
+        ]);
+      } else {
+        setFeedbacks(firstData);
+      }
     } catch { setError("Tidak dapat terhubung ke database."); }
     finally { setLoading(false); }
   }, []);

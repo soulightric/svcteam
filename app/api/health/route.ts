@@ -8,13 +8,12 @@ import { prisma } from "@/lib/prisma";
 export async function GET() {
   const started = process.uptime();
   let db: "ok" | "error" = "ok";
-  let dbError: string | undefined;
 
   try {
     await prisma.$queryRaw`SELECT 1`;
   } catch (e) {
     db = "error";
-    dbError = e instanceof Error ? e.message : "db unreachable";
+    console.error("Health check database error:", e);
   }
 
   const healthy = db === "ok";
@@ -23,7 +22,6 @@ export async function GET() {
     {
       status: healthy ? "ok" : "degraded",
       db,
-      ...(dbError && { dbError }),
       uptimeSec: Math.round(started),
       version: process.env.npm_package_version || "0.2.0",
       timestamp: new Date().toISOString(),
