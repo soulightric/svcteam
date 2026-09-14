@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  serverExternalPackages: ["sharp"],
   typescript: {
     ignoreBuildErrors: false,
   },
@@ -9,7 +10,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "res.cloudinary.com",
+        hostname: "uploads.algorithmics.web.id",
         pathname: "/**",
       },
     ],

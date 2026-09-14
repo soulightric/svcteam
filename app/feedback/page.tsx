@@ -779,13 +779,6 @@ export default function FeedbackPage() {
         </div>
       </main>
 
-      <footer className="border-t border-slate-200 mt-12">
-        <div className="max-w-6xl mx-auto px-6 py-5 flex flex-col md:flex-row items-center justify-between gap-2">
-          <p className="text-xs text-slate-400">© 2026 SVC - Student Voice Campus backup by <Link className="text-emerald-500" href="https://www.etherthink.xyz/" target="_blank" rel="noopener noreferrer">Etherthink</ Link></p>
-          <p className="text-xs text-slate-400">Aduan bersifat rahasia dan diproses dalam 3–5 hari kerja</p>
-        </div>
-      </footer>
-
       {/* Edit Modal */}
       {editTarget && (
         <EditModal

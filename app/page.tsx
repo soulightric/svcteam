@@ -27,10 +27,7 @@ export default function HomePage() {
 
   // Slider state
   const heroImages = [
-  "https://ith.ac.id/public/carouselImg/2024-11-22T00-57-29-151Z.jpeg", 
-  "https://ith.ac.id/public/carouselImg/2024-11-22T00-56-59-919Z.jpeg",     
-  "https://ith.ac.id/public/carouselImg/2024-11-22T01-02-08-093Z.jpeg",    
-  "https://ith.ac.id/public/carouselImg/2024-11-22T01-00-23-481Z.jpeg",  
+  "https://algorithmics.web.id/hero.webp", 
   ];
 
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -40,17 +37,17 @@ export default function HomePage() {
 
   // Daftar link navigasi
   const navLinks = [
-    { label: "Lacak Aduan", href: "/lacak", blank: false },
-    { label: "Web Utama", href: "https://ith.ac.id", blank: true },
-    { label: "Easter Egg", href: "https://oguri.ilkomith.cloud", blank: true },
+    // { label: "Lacak Aduan", href: "/lacak", blank: false },
+    { label: "Main Web", href: "https://ith.ac.id", blank: true },
+    { label: "Easter Egg", href: "https://ilkomith.cloud", blank: true },
   ];
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % heroImages.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     setCurrentSlide((prev) => (prev + 1) % heroImages.length);
+  //   }, 5000);
+  //   return () => clearInterval(interval);
+  // }, []);
 
   // Animasi counter
   useEffect(() => {

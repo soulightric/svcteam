@@ -9,7 +9,7 @@ import {
   BookOpen, GraduationCap, Wifi, Utensils, Building2, ShieldCheck,
   FlaskConical, Bus, CheckCircle2, Clock3, XCircle, MessageSquare,
   Hash, CalendarDays, RefreshCw, AlertCircle, ChevronLeft,
-  Send, Inbox, Users, TrendingUp, ShieldAlert, X, Trash2, LogOut, LayoutDashboard,
+  Send, Inbox, Users, User, TrendingUp, ShieldAlert, X, Trash2, LogOut, LayoutDashboard,
   UserPlus, Eye, EyeOff, KeyRound, Menu, Search, ImageIcon,
   Download, FileUp,
 } from "lucide-react";
@@ -411,7 +411,7 @@ function MahasiswaTab() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
         <div className="flex items-center gap-2">
           <Users size={16} className="text-slate-500" />
           <p className="text-sm font-semibold text-slate-700">
@@ -421,12 +421,12 @@ function MahasiswaTab() {
         <div className="flex items-center gap-2">
           <input ref={importRef} type="file" accept=".csv,text/csv" className="hidden" onChange={handleImportCsv} />
           <button type="button" onClick={() => importRef.current?.click()} disabled={importing}
-            className="flex items-center gap-1.5 px-3 py-2 rounded text-xs font-semibold border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50">
+            className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 rounded text-xs font-semibold border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-50">
             {importing ? <RefreshCw size={13} className="animate-spin" /> : <FileUp size={13} />}
             Import CSV
           </button>
           <button onClick={() => setShowForm(!showForm)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded text-xs font-semibold transition-all"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 py-2 rounded text-xs font-semibold transition-all"
             style={{ backgroundColor: showForm ? "#f1f5f9" : "#0f1b2d", color: showForm ? "#64748b" : "white" }}>
             <UserPlus size={13} />{showForm ? "Batal" : "Tambah Mahasiswa"}
           </button>
@@ -451,7 +451,7 @@ function MahasiswaTab() {
                 <AlertCircle size={12} />{error}
               </div>
             )}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">NIM *</label>
                 <input type="text" value={form.nim} onChange={(e) => setForm((f) => ({ ...f, nim: e.target.value }))}
@@ -518,39 +518,69 @@ function MahasiswaTab() {
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto">
-            <div className="grid grid-cols-12 gap-4 px-5 py-3 bg-slate-50 text-[10px] font-semibold text-slate-400 uppercase tracking-wider min-w-[560px]">
-              <span className="col-span-2">NIM</span>
-              <span className="col-span-4">Nama</span>
-              <span className="col-span-2 text-center">Aduan</span>
-              <span className="col-span-2">Terdaftar</span>
-              <span className="col-span-2">Aksi</span>
-            </div>
-            <div className="divide-y divide-slate-50 min-w-[560px]">
-              {list.map((m) => (
-                <div key={m.id} className="grid grid-cols-12 gap-4 px-5 py-3.5 items-center hover:bg-slate-50 transition-colors group">
-                  <span className="col-span-2 text-xs font-mono text-slate-600">{m.nim}</span>
-                  <span className="col-span-4 text-sm font-medium text-slate-800 truncate">{m.nama}</span>
-                  <div className="col-span-2 flex justify-center">
-                    <span className="px-2 py-0.5 rounded text-xs font-semibold"
-                      style={{ backgroundColor: m._count.feedbacks > 0 ? "#dbeafe" : "#f1f5f9", color: m._count.feedbacks > 0 ? "#1d4ed8" : "#94a3b8" }}>
-                      {m._count.feedbacks} aduan
-                    </span>
+            {/* Desktop: table */}
+            <div className="hidden md:block">
+              <div className="grid grid-cols-12 gap-4 px-5 py-3 bg-slate-50 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                <span className="col-span-2">NIM</span>
+                <span className="col-span-4">Nama</span>
+                <span className="col-span-2 text-center">Aduan</span>
+                <span className="col-span-2">Terdaftar</span>
+                <span className="col-span-2">Aksi</span>
+              </div>
+              <div className="divide-y divide-slate-50">
+                {list.map((m) => (
+                  <div key={m.id} className="grid grid-cols-12 gap-4 px-5 py-3.5 items-center hover:bg-slate-50 transition-colors group">
+                    <span className="col-span-2 text-xs font-mono text-slate-600">{m.nim}</span>
+                    <span className="col-span-4 text-sm font-medium text-slate-800 truncate">{m.nama}</span>
+                    <div className="col-span-2 flex justify-center">
+                      <span className="px-2 py-0.5 rounded text-xs font-semibold"
+                        style={{ backgroundColor: m._count.feedbacks > 0 ? "#dbeafe" : "#f1f5f9", color: m._count.feedbacks > 0 ? "#1d4ed8" : "#94a3b8" }}>
+                        {m._count.feedbacks} aduan
+                      </span>
+                    </div>
+                    <span className="col-span-2 text-xs text-slate-400">{formatTanggal(m.createdAt)}</span>
+                    <div className="col-span-2 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onClick={() => { setResetTarget(m); setNewPassword(""); }}
+                        className="p-1.5 rounded hover:bg-blue-50 text-slate-400 hover:text-blue-500 transition-colors" title="Reset Password">
+                        <KeyRound size={13} />
+                      </button>
+                      <button onClick={() => setDeleteConfirm(m.id)}
+                        className="p-1.5 rounded hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors" title="Hapus">
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
                   </div>
-                  <span className="col-span-2 text-xs text-slate-400">{formatTanggal(m.createdAt)}</span>
-                  <div className="col-span-2 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                ))}
+              </div>
+            </div>
+
+            {/* Mobile: cards */}
+            <div className="md:hidden divide-y divide-slate-50">
+              {list.map((m) => (
+                <div key={m.id} className="p-4 flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-slate-800 truncate">{m.nama}</p>
+                    <p className="text-xs font-mono text-slate-500 mt-0.5">{m.nim}</p>
+                    <div className="flex items-center gap-2 mt-1.5">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-semibold"
+                        style={{ backgroundColor: m._count.feedbacks > 0 ? "#dbeafe" : "#f1f5f9", color: m._count.feedbacks > 0 ? "#1d4ed8" : "#94a3b8" }}>
+                        {m._count.feedbacks} aduan
+                      </span>
+                      <span className="text-[10px] text-slate-400">{formatTanggal(m.createdAt)}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
                     <button onClick={() => { setResetTarget(m); setNewPassword(""); }}
-                      className="p-1.5 rounded hover:bg-blue-50 text-slate-400 hover:text-blue-500 transition-colors" title="Reset Password">
-                      <KeyRound size={13} />
+                      className="p-2 rounded hover:bg-blue-50 text-slate-400 active:text-blue-500 transition-colors" title="Reset Password">
+                      <KeyRound size={15} />
                     </button>
                     <button onClick={() => setDeleteConfirm(m.id)}
-                      className="p-1.5 rounded hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors" title="Hapus">
-                      <Trash2 size={13} />
+                      className="p-2 rounded hover:bg-red-50 text-slate-400 active:text-red-500 transition-colors" title="Hapus">
+                      <Trash2 size={15} />
                     </button>
                   </div>
                 </div>
               ))}
-            </div>
             </div>
           </>
         )}
@@ -811,7 +841,7 @@ export default function AdminPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex items-center gap-1 mb-5 bg-white rounded p-1 border border-slate-100 w-fit max-w-full overflow-x-auto shadow-sm">
+        <div className="flex items-center gap-1 mb-5 bg-white rounded p-1 border border-slate-100 w-full sm:w-fit shadow-sm">
           {(([
             { key: "aduan",      label: isSuper ? "Kelola Aduan" : "Aduan Masuk", icon: MessageSquare },
             { key: "mahasiswa",  label: "Kelola Mahasiswa",  icon: Users },
@@ -820,11 +850,11 @@ export default function AdminPage() {
             (t) => isSuper || t.key === "aduan"
           )).map(({ key, label, icon: Icon }) => (
             <button key={key} onClick={() => setActiveTab(key)}
-              className="flex items-center gap-1.5 px-4 py-2 rounded text-xs font-semibold transition-all shrink-0 whitespace-nowrap"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-2.5 sm:px-4 py-2 rounded text-[11px] sm:text-xs font-semibold transition-all whitespace-nowrap"
               style={activeTab === key
                 ? { backgroundColor: "#0f1b2d", color: "white" }
                 : { color: "#64748b" }}>
-              <Icon size={13} />{label}
+              <Icon size={13} className="shrink-0" /><span className="truncate">{label}</span>
             </button>
           ))}
         </div>
@@ -916,61 +946,113 @@ export default function AdminPage() {
                   <p className="text-slate-400 text-sm">Tidak ada aduan</p>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                <div className="divide-y divide-slate-50 min-w-[680px]">
-                  <div className="grid grid-cols-12 gap-4 px-5 py-3 bg-slate-50">
-                    {["ID","Aduan","Pelapor","Kategori","Tanggal","Status"].map((h, i) => (
-                      <p key={h} className={`text-[10px] font-semibold text-slate-400 uppercase tracking-wider ${i===0?"col-span-1":i===1?"col-span-3":i===2?"col-span-2":i===3?"col-span-2":i===4?"col-span-2":"col-span-2"}`}>{h}</p>
-                    ))}
-                  </div>
-                  {filtered.map((fb) => {
-                    const kat = getKategori(fb.kategori); const KatIcon = kat.icon;
-                    return (
-                      <div key={fb.id}
-                        className="grid grid-cols-12 gap-4 px-5 py-4 hover:bg-slate-50 transition-colors cursor-pointer group items-center"
-                        onClick={() => setSelected(fb)}>
-                        <span className="col-span-1 text-xs text-slate-400 font-mono flex items-center gap-1">
-                          <Hash size={10} />{fb.id.slice(0,6).toUpperCase()}
-                        </span>
-                        <div className="col-span-3 min-w-0">
-                          <p className="text-sm font-semibold text-slate-800 truncate group-hover:text-teal-700 transition-colors">{fb.judul}</p>
-                          {fb.nomorTiket && <p className="text-[10px] font-mono text-blue-600">{fb.nomorTiket}</p>}
-                          <p className="text-xs text-slate-400 truncate">{fb.deskripsi.slice(0,45)}...</p>
-                        </div>
-                        <div className="col-span-2 min-w-0">
-                          <p className="text-xs font-medium text-slate-700 truncate">{fb.mahasiswa.nama}</p>
-                          <p className="text-xs text-slate-400">{fb.mahasiswa.nim}</p>
-                        </div>
-                        <div className="col-span-2">
-                          <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs font-medium"
-                            style={{ backgroundColor: kat.color + "15", color: kat.color }}>
-                            <KatIcon size={11} />{kat.label}
+                <>
+                  {/* Desktop: table */}
+                  <div className="hidden md:block divide-y divide-slate-50">
+                    <div className="grid grid-cols-12 gap-4 px-5 py-3 bg-slate-50">
+                      {["ID","Aduan","Pelapor","Kategori","Tanggal","Status"].map((h, i) => (
+                        <p key={h} className={`text-[10px] font-semibold text-slate-400 uppercase tracking-wider ${i===0?"col-span-1":i===1?"col-span-3":i===2?"col-span-2":i===3?"col-span-2":i===4?"col-span-2":"col-span-2"}`}>{h}</p>
+                      ))}
+                    </div>
+                    {filtered.map((fb) => {
+                      const kat = getKategori(fb.kategori); const KatIcon = kat.icon;
+                      return (
+                        <div key={fb.id}
+                          className="grid grid-cols-12 gap-4 px-5 py-4 hover:bg-slate-50 transition-colors cursor-pointer group items-center"
+                          onClick={() => setSelected(fb)}>
+                          <span className="col-span-1 text-xs text-slate-400 font-mono flex items-center gap-1">
+                            <Hash size={10} />{fb.id.slice(0,6).toUpperCase()}
                           </span>
-                        </div>
-                        <span className="col-span-2 flex items-center gap-1 text-xs text-slate-400">
-                          <CalendarDays size={11} />{formatTanggal(fb.createdAt)}
-                        </span>
-                        <div className="col-span-2 flex items-center gap-2">
-                          <StatusBadge status={fb.status} />
-                          {isSuper && fb.diteruskan && (
-                            <span title={`Diteruskan ke Admin ${kat.label}`}
-                              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold"
-                              style={{ backgroundColor: kat.color + "18", color: kat.color }}>
-                              <Send size={9} />Diteruskan
+                          <div className="col-span-3 min-w-0">
+                            <p className="text-sm font-semibold text-slate-800 truncate group-hover:text-teal-700 transition-colors">{fb.judul}</p>
+                            {fb.nomorTiket && <p className="text-[10px] font-mono text-blue-600">{fb.nomorTiket}</p>}
+                            <p className="text-xs text-slate-400 truncate">{fb.deskripsi.slice(0,45)}...</p>
+                          </div>
+                          <div className="col-span-2 min-w-0">
+                            <p className="text-xs font-medium text-slate-700 truncate">{fb.mahasiswa.nama}</p>
+                            <p className="text-xs text-slate-400">{fb.mahasiswa.nim}</p>
+                          </div>
+                          <div className="col-span-2">
+                            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs font-medium"
+                              style={{ backgroundColor: kat.color + "15", color: kat.color }}>
+                              <KatIcon size={11} />{kat.label}
                             </span>
-                          )}
+                          </div>
+                          <span className="col-span-2 flex items-center gap-1 text-xs text-slate-400">
+                            <CalendarDays size={11} />{formatTanggal(fb.createdAt)}
+                          </span>
+                          <div className="col-span-2 flex items-center gap-2">
+                            <StatusBadge status={fb.status} />
+                            {isSuper && fb.diteruskan && (
+                              <span title={`Diteruskan ke Admin ${kat.label}`}
+                                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold"
+                                style={{ backgroundColor: kat.color + "18", color: kat.color }}>
+                                <Send size={9} />Diteruskan
+                              </span>
+                            )}
+                            {isSuper && (
+                              <button onClick={(e) => { e.stopPropagation(); setDeleteConfirm(fb.id); }}
+                                className="p-1 rounded opacity-0 group-hover:opacity-100 transition-all hover:bg-red-50 text-slate-300 hover:text-red-400">
+                                <Trash2 size={13} />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Mobile: cards */}
+                  <div className="md:hidden divide-y divide-slate-50">
+                    {filtered.map((fb) => {
+                      const kat = getKategori(fb.kategori); const KatIcon = kat.icon;
+                      return (
+                        <div key={fb.id}
+                          className="p-4 space-y-2.5 active:bg-slate-50 transition-colors"
+                          onClick={() => setSelected(fb)}>
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0 flex-1">
+                              <span className="text-[10px] text-slate-400 font-mono flex items-center gap-1 mb-0.5">
+                                <Hash size={9} />{fb.id.slice(0,6).toUpperCase()}
+                              </span>
+                              <p className="text-sm font-semibold text-slate-800 truncate">{fb.judul}</p>
+                              {fb.nomorTiket && <p className="text-[10px] font-mono text-blue-600 mt-0.5">{fb.nomorTiket}</p>}
+                            </div>
+                            <StatusBadge status={fb.status} />
+                          </div>
+                          <p className="text-xs text-slate-400 line-clamp-2">{fb.deskripsi}</p>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs font-medium"
+                              style={{ backgroundColor: kat.color + "15", color: kat.color }}>
+                              <KatIcon size={11} />{kat.label}
+                            </span>
+                            {isSuper && fb.diteruskan && (
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold"
+                                style={{ backgroundColor: kat.color + "18", color: kat.color }}>
+                                <Send size={9} />Diteruskan
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center justify-between pt-2 border-t border-slate-50 text-xs text-slate-400">
+                            <span className="flex items-center gap-1 min-w-0">
+                              <User size={11} className="shrink-0" />
+                              <span className="truncate">{fb.mahasiswa.nama} ({fb.mahasiswa.nim})</span>
+                            </span>
+                            <span className="flex items-center gap-1 shrink-0 ml-2">
+                              <CalendarDays size={11} />{formatTanggal(fb.createdAt)}
+                            </span>
+                          </div>
                           {isSuper && (
                             <button onClick={(e) => { e.stopPropagation(); setDeleteConfirm(fb.id); }}
-                              className="p-1 rounded opacity-0 group-hover:opacity-100 transition-all hover:bg-red-50 text-slate-300 hover:text-red-400">
-                              <Trash2 size={13} />
+                              className="flex items-center gap-1.5 text-xs text-red-400 pt-0.5">
+                              <Trash2 size={13} />Hapus
                             </button>
                           )}
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
-                </div>
+                      );
+                    })}
+                  </div>
+                </>
               )}
             </div>
             <p className="text-xs text-slate-400 mt-3 flex items-center gap-1.5">
@@ -1019,6 +1101,9 @@ function KelolaAdmin() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [showForm, setShowForm] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [showPass, setShowPass] = useState(false);
 
   const [newAdmin, setNewAdmin] = useState({
     username: "",
@@ -1074,6 +1159,7 @@ function KelolaAdmin() {
       return;
     }
 
+    setSaving(true);
     try {
       const res = await fetch("/api/admin", {
         method: "POST",
@@ -1090,108 +1176,165 @@ function KelolaAdmin() {
 
       setSuccess("Admin baru berhasil ditambahkan!");
       setNewAdmin({ username: "", password: "", role: "ADMIN", kategori: "" });
+      setShowForm(false);
       fetchAdmins(); // refresh list
     } catch (err) {
       setError("Terjadi kesalahan saat menambahkan admin");
+    } finally {
+      setSaving(false);
     }
   };
 
   return (
-    <div className="bg-white rounded border border-slate-100 p-6">
-      <div className="flex items-center gap-3 mb-6">
-        <ShieldAlert className="text-teal-600" size={22} />
-        <h2 className="text-xl font-semibold">Kelola Admin</h2>
+    <div>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+        <div className="flex items-center gap-2">
+          <ShieldAlert size={16} className="text-slate-500" />
+          <p className="text-sm font-semibold text-slate-700">
+            {admins.length} Admin Terdaftar
+          </p>
+        </div>
+        <button onClick={() => { setShowForm(!showForm); setError(""); setSuccess(""); }}
+          className="flex items-center justify-center gap-1.5 px-3 py-2 rounded text-xs font-semibold transition-all"
+          style={{ backgroundColor: showForm ? "#f1f5f9" : "#0f1b2d", color: showForm ? "#64748b" : "white" }}>
+          <UserPlus size={13} />{showForm ? "Batal" : "Tambah Admin"}
+        </button>
       </div>
 
-      {/* Form Tambah Admin */}
-      <div className="mb-8 border-b pb-6">
-        <h3 className="font-semibold mb-4 text-slate-700">Tambah Admin Baru</h3>
+      {success && !showForm && (
+        <div className="mb-4 flex items-center gap-2 px-3 py-2.5 rounded text-xs"
+          style={{ backgroundColor: "#d1fae5", color: "#065f46", border: "1px solid #6ee7b7" }}>
+          <CheckCircle2 size={13} />{success}
+        </div>
+      )}
 
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 text-red-600 text-sm rounded border border-red-200">
-            {error}
-          </div>
-        )}
-        {success && (
-          <div className="mb-4 p-3 bg-green-50 text-green-600 text-sm rounded border border-green-200">
-            {success}
-          </div>
-        )}
+      {/* Form tambah */}
+      {showForm && (
+        <div className="bg-white rounded border border-slate-100 p-5 mb-4 animate-fade-up">
+          <h3 className="text-base text-slate-800 mb-4">Tambah Admin Baru</h3>
+          <form onSubmit={handleAddAdmin} className="space-y-3">
+            {error && (
+              <div className="flex items-center gap-2 px-3 py-2 rounded text-xs"
+                style={{ backgroundColor: "#fee2e2", color: "#991b1b", border: "1px solid #fca5a5" }}>
+                <AlertCircle size={12} />{error}
+              </div>
+            )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Username *</label>
+                <input type="text" value={newAdmin.username}
+                  onChange={(e) => setNewAdmin({ ...newAdmin, username: e.target.value })}
+                  placeholder="Username admin"
+                  className="w-full px-3 py-2.5 rounded border text-sm outline-none transition-all"
+                  style={{ borderColor: "var(--border)" }}
+                  onFocus={(e) => (e.target.style.borderColor = "#0d9488")}
+                  onBlur={(e) => (e.target.style.borderColor = "var(--border)")} />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Password *</label>
+                <div className="relative">
+                  <input type={showPass ? "text" : "password"} value={newAdmin.password}
+                    onChange={(e) => setNewAdmin({ ...newAdmin, password: e.target.value })}
+                    placeholder="Password admin"
+                    className="w-full px-3 pr-10 py-2.5 rounded border text-sm outline-none transition-all"
+                    style={{ borderColor: "var(--border)" }}
+                    onFocus={(e) => (e.target.style.borderColor = "#0d9488")}
+                    onBlur={(e) => (e.target.style.borderColor = "var(--border)")} />
+                  <button type="button" onClick={() => setShowPass(!showPass)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                    {showPass ? <EyeOff size={14} /> : <Eye size={14} />}
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Role</label>
+                <select value={newAdmin.role}
+                  onChange={(e) => setNewAdmin({ ...newAdmin, role: e.target.value, kategori: e.target.value === "SUPER_ADMIN" ? "" : newAdmin.kategori })}
+                  className="w-full px-3 py-2.5 rounded border text-sm outline-none transition-all bg-white"
+                  style={{ borderColor: "var(--border)" }}
+                  onFocus={(e) => (e.target.style.borderColor = "#0d9488")}
+                  onBlur={(e) => (e.target.style.borderColor = "var(--border)")}>
+                  <option value="ADMIN">Admin Kategori</option>
+                  <option value="SUPER_ADMIN">Super Admin</option>
+                </select>
+              </div>
+              {newAdmin.role === "ADMIN" && (
+                <div>
+                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Kategori *</label>
+                  <select value={newAdmin.kategori}
+                    onChange={(e) => setNewAdmin({ ...newAdmin, kategori: e.target.value })}
+                    className="w-full px-3 py-2.5 rounded border text-sm outline-none transition-all bg-white"
+                    style={{ borderColor: "var(--border)" }}
+                    onFocus={(e) => (e.target.style.borderColor = "#0d9488")}
+                    onBlur={(e) => (e.target.style.borderColor = "var(--border)")}>
+                    <option value="">— Pilih Kategori —</option>
+                    {KATEGORI_LIST.map((kat) => (
+                      <option key={kat.value} value={kat.value}>{kat.label}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+            <button type="submit" disabled={saving}
+              className="flex items-center gap-2 px-4 py-2.5 rounded text-sm font-semibold transition-all hover:opacity-90 disabled:opacity-60"
+              style={{ backgroundColor: "#0d9488", color: "white" }}>
+              {saving ? <RefreshCw size={13} className="animate-spin" /> : <UserPlus size={13} />}
+              {saving ? "Menyimpan..." : "Simpan Admin"}
+            </button>
+          </form>
+        </div>
+      )}
 
-        <form onSubmit={handleAddAdmin} className="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <input
-            type="text"
-            placeholder="Username"
-            className="border border-slate-300 p-2.5 rounded text-sm focus:outline-none focus:border-teal-600"
-            value={newAdmin.username}
-            onChange={(e) => setNewAdmin({ ...newAdmin, username: e.target.value })}
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            className="border border-slate-300 p-2.5 rounded text-sm focus:outline-none focus:border-teal-600"
-            value={newAdmin.password}
-            onChange={(e) => setNewAdmin({ ...newAdmin, password: e.target.value })}
-          />
-          <select
-            className="border border-slate-300 p-2.5 rounded text-sm focus:outline-none focus:border-teal-600"
-            value={newAdmin.kategori}
-            onChange={(e) => setNewAdmin({ ...newAdmin, kategori: e.target.value })}
-          >
-            <option value="">— Pilih Kategori —</option>
-            {KATEGORI_LIST.map((kat) => (
-              <option key={kat.value} value={kat.value}>{kat.label}</option>
-            ))}
-          </select>
-
-          <button
-            type="submit"
-            className="bg-teal-600 hover:bg-teal-700 transition-colors text-white px-4 py-2.5 rounded text-sm font-medium flex items-center justify-center gap-2"
-          >
-            <UserPlus size={16} /> Tambah Admin
-          </button>
-        </form>
-      </div>
-
-      {/* Daftar Admin */}
-      <div>
-        <h3 className="font-semibold mb-4 text-slate-700">Daftar Admin</h3>
-
+      {/* List */}
+      <div className="bg-white rounded border border-slate-100 overflow-hidden">
         {loading ? (
-          <div className="flex justify-center py-8">
-            <RefreshCw className="animate-spin text-slate-400" />
+          <div className="p-5 space-y-3">
+            {[1,2,3].map((i) => (
+              <div key={i} className="animate-pulse flex items-center gap-4">
+                <div className="w-8 h-8 bg-slate-100 rounded" />
+                <div className="flex-1 space-y-1.5">
+                  <div className="h-3 bg-slate-100 rounded w-1/4" />
+                  <div className="h-3 bg-slate-100 rounded w-1/3" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : error && admins.length === 0 ? (
-          <div className="text-center py-8 text-red-500 text-sm">{error}</div>
+          <div className="flex flex-col items-center py-12">
+            <AlertCircle size={36} className="text-slate-200 mb-3" />
+            <p className="text-sm text-slate-400">{error}</p>
+          </div>
         ) : admins.length === 0 ? (
-          <p className="text-sm text-slate-500 py-4">Belum ada admin terdaftar.</p>
+          <div className="flex flex-col items-center py-12">
+            <ShieldAlert size={36} className="text-slate-200 mb-3" />
+            <p className="text-sm text-slate-400">Belum ada admin terdaftar</p>
+          </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b bg-slate-50">
-                  <th className="text-left py-3 px-4 font-medium">Username</th>
-                  <th className="text-left py-3 px-4 font-medium">Role</th>
-                  <th className="text-left py-3 px-4 font-medium">Kategori</th>
-                  <th className="text-left py-3 px-4 font-medium">Dibuat Pada</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
+          <>
+            {/* Desktop: table */}
+            <div className="hidden md:block">
+              <div className="grid grid-cols-12 gap-4 px-5 py-3 bg-slate-50 text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                <span className="col-span-3">Username</span>
+                <span className="col-span-3">Role</span>
+                <span className="col-span-3">Kategori</span>
+                <span className="col-span-3">Dibuat Pada</span>
+              </div>
+              <div className="divide-y divide-slate-50">
                 {admins.map((admin) => (
-                  <tr key={admin.id} className="hover:bg-slate-50">
-                    <td className="py-3 px-4 font-medium">{admin.username}</td>
-                    <td className="py-3 px-4">
-                      <span
-                        className={`px-3 py-1 rounded text-xs font-semibold ${
-                          admin.role === "SUPER_ADMIN"
-                            ? "bg-purple-100 text-purple-700"
-                            : "bg-slate-100 text-slate-600"
-                        }`}
-                      >
+                  <div key={admin.id} className="grid grid-cols-12 gap-4 px-5 py-3.5 items-center hover:bg-slate-50 transition-colors">
+                    <span className="col-span-3 text-sm font-medium text-slate-800 truncate">{admin.username}</span>
+                    <div className="col-span-3">
+                      <span className="px-2 py-0.5 rounded text-xs font-semibold"
+                        style={admin.role === "SUPER_ADMIN"
+                          ? { backgroundColor: "#ede9fe", color: "#6d28d9" }
+                          : { backgroundColor: "#f1f5f9", color: "#64748b" }}>
                         {admin.role}
                       </span>
-                    </td>
-                    <td className="py-3 px-4">
+                    </div>
+                    <div className="col-span-3">
                       {admin.kategori ? (
                         (() => { const k = getKategori(admin.kategori); const KIcon = k.icon; return (
                           <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs font-medium"
@@ -1202,19 +1345,47 @@ function KelolaAdmin() {
                       ) : (
                         <span className="text-xs text-slate-400">—</span>
                       )}
-                    </td>
-                    <td className="py-3 px-4 text-xs text-slate-500">
-                      {new Date(admin.createdAt).toLocaleDateString("id-ID", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </td>
-                  </tr>
+                    </div>
+                    <span className="col-span-3 flex items-center gap-1 text-xs text-slate-400">
+                      <CalendarDays size={11} />{formatTanggal(admin.createdAt)}
+                    </span>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </div>
+            </div>
+
+            {/* Mobile: cards */}
+            <div className="md:hidden divide-y divide-slate-50">
+              {admins.map((admin) => (
+                <div key={admin.id} className="p-4 space-y-1.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-sm font-semibold text-slate-800 truncate">{admin.username}</p>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-semibold shrink-0"
+                      style={admin.role === "SUPER_ADMIN"
+                        ? { backgroundColor: "#ede9fe", color: "#6d28d9" }
+                        : { backgroundColor: "#f1f5f9", color: "#64748b" }}>
+                      {admin.role}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs text-slate-400">
+                    {admin.kategori ? (
+                      (() => { const k = getKategori(admin.kategori); const KIcon = k.icon; return (
+                        <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs font-medium"
+                          style={{ backgroundColor: k.color + "15", color: k.color }}>
+                          <KIcon size={11} />{k.label}
+                        </span>
+                      ); })()
+                    ) : (
+                      <span className="text-xs text-slate-400">—</span>
+                    )}
+                    <span className="flex items-center gap-1">
+                      <CalendarDays size={11} />{formatTanggal(admin.createdAt)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </div>

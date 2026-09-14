@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { verifyToken } from "@/lib/auth";
 import { cookies } from "next/headers";
-import cloudinary from "@/lib/cloudinary";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { randomUUID } from "crypto";
+import sharp from "sharp";
+import { garageClient, GARAGE_BUCKET, garagePublicUrl } from "@/lib/garage";
 
 const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -73,37 +76,62 @@ export async function POST(req: Request) {
       );
     }
 
-    // Pastikan kredensial Cloudinary tersedia di runtime.
-    // Penyebab umum 500: env CLOUDINARY_* tidak ter-load (mis. menjalankan
+    // Pastikan kredensial Garage tersedia di runtime.
+    // Penyebab umum 500: env GARAGE_* tidak ter-load (mis. menjalankan
     // build standalone `node server.js` tanpa env, atau .env tidak di-inject).
     if (
-      !process.env.CLOUDINARY_CLOUD_NAME ||
-      !process.env.CLOUDINARY_API_KEY ||
-      !process.env.CLOUDINARY_API_SECRET
+      !process.env.GARAGE_ENDPOINT ||
+      !process.env.GARAGE_ACCESS_KEY_ID ||
+      !process.env.GARAGE_SECRET_ACCESS_KEY ||
+      !process.env.GARAGE_PUBLIC_BASE_URL
     ) {
-      console.error("UPLOAD ERROR: Kredensial Cloudinary tidak ditemukan di environment.");
+      console.error("UPLOAD ERROR: Kredensial/konfigurasi Garage tidak ditemukan di environment.");
       return NextResponse.json(
-        { error: "Konfigurasi Cloudinary belum di-set di server (CLOUDINARY_CLOUD_NAME / API_KEY / API_SECRET)." },
+        { error: "Konfigurasi Garage belum di-set di server (GARAGE_ENDPOINT / ACCESS_KEY_ID / SECRET_ACCESS_KEY / PUBLIC_BASE_URL)." },
         { status: 500 }
       );
     }
 
-    // Upload ke Cloudinary
-    const result = await new Promise<{ secure_url: string; public_id: string }>((resolve, reject) => {
-      cloudinary.uploader.upload_stream(
-        {
-          folder: "siaduan-kampus",
-          resource_type: "image",
-          transformation: [{ width: 1200, height: 1200, crop: "limit", quality: "auto" }],
-        },
-        (error, result) => {
-          if (error || !result) reject(error ?? new Error("Upload Cloudinary gagal tanpa hasil"));
-          else resolve(result as { secure_url: string; public_id: string });
-        }
-      ).end(buffer);
-    });
+    // Kompres & resize sebelum upload (dulu ditangani otomatis oleh Cloudinary,
+    // sekarang dilakukan manual karena Garage cuma nyimpen file mentah).
+    // Semua format diseragamkan jadi JPEG kualitas tinggi — hasil jauh lebih
+    // kecil dari file asli tapi masih jelas untuk keperluan bukti aduan.
+    const MAX_DIMENSION = 1600; // sisi terpanjang, cukup jelas untuk dizoom di admin
+    let compressedBuffer: Buffer;
+    try {
+      compressedBuffer = await sharp(buffer)
+        .rotate() // auto-orientasi berdasarkan EXIF (foto dari HP kadang kesimpen miring)
+        .resize({
+          width: MAX_DIMENSION,
+          height: MAX_DIMENSION,
+          fit: "inside",
+          withoutEnlargement: true, // jangan perbesar gambar yang sudah kecil
+        })
+        .jpeg({ quality: 82, mozjpeg: true })
+        .toBuffer();
+    } catch (compressErr) {
+      console.error("UPLOAD ERROR (compress):", compressErr);
+      return NextResponse.json({ error: "Gagal memproses gambar" }, { status: 500 });
+    }
 
-    return NextResponse.json({ url: result.secure_url, public_id: result.public_id });
+    // Upload ke Garage (S3-compatible)
+    const key = `svcteam/${randomUUID()}.jpg`;
+
+    try {
+      await garageClient.send(
+        new PutObjectCommand({
+          Bucket: GARAGE_BUCKET,
+          Key: key,
+          Body: compressedBuffer,
+          ContentType: "image/jpeg",
+        })
+      );
+    } catch (uploadErr) {
+      console.error("UPLOAD ERROR (Garage):", uploadErr);
+      return NextResponse.json({ error: "Gagal mengupload foto ke storage" }, { status: 500 });
+    }
+
+    return NextResponse.json({ url: garagePublicUrl(key), public_id: key });
   } catch (e: unknown) {
     // Tampilkan pesan asli supaya mudah di-debug (mis. masalah kredensial / jaringan)
     const msg =
