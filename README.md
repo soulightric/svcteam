@@ -16,7 +16,7 @@ Platform pengaduan dan feedback fasilitas kampus berbasis web. Mahasiswa yang te
 | Jose | 6 | JWT authentication |
 | Recharts | 3 | Grafik dashboard |
 | Lucide React | latest | Icon library |
-| cloudinary | latest | Image |
+| garage | latest | Image |
 
 ---
 
@@ -136,8 +136,8 @@ svc.etherthink.xyz/
 ### 1. Clone dan install dependencies
 
 ```bash
-git clone https://github.com/soulightric/svc.etherthink.xyz.git
-cd svc.etherthink.xyz
+git clone https://github.com/soulightric/svcteam.git
+cd svcteam
 npm install
 ```
 
