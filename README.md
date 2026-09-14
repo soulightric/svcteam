@@ -65,7 +65,7 @@ Akademik, Perpustakaan, Internet & Teknologi, Kantin, Gedung & Ruang Kelas, Keam
 ## Struktur Direktori
 
 ```
-svc.cujud.xyz/
+svc.etherthink.xyz/
 ├── app
 │   ├── admin
 │   │   ├── dashboard
@@ -136,8 +136,8 @@ svc.cujud.xyz/
 ### 1. Clone dan install dependencies
 
 ```bash
-git clone https://github.com/soulightric/svc.cujud.xyz.git
-cd svc.cujud.xyz
+git clone https://github.com/soulightric/svc.etherthink.xyz.git
+cd svc.etherthink.xyz
 npm install
 ```
 
