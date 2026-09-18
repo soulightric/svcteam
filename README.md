@@ -1,4 +1,4 @@
-![svc by algorithmics](https://db.etherthink.xyz/etherthink/svclogo.png)
+![svc by algorithmics](https://db.etherthink.xyz/etherthink/svcalgo.png)
 
 # Student Voice ITH Campus
 
