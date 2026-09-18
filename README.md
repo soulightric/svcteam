@@ -1,3 +1,5 @@
+![svc by algorithmics](https://db.etherthink.xyz/etherthink/svclogo.png)
+
 # Student Voice ITH Campus
 
 Platform pengaduan dan feedback fasilitas kampus berbasis web. Mahasiswa yang terdaftar dapat menyampaikan aduan terkait fasilitas kampus, dan admin dapat mengelola serta merespons setiap aduan.
