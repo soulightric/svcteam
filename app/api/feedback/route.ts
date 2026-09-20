@@ -6,11 +6,12 @@ import {
   requireMahasiswa,
 } from "@/lib/api-auth";
 import { generateNomorTiket } from "@/lib/ticket";
+import { classifyFeedback } from "@/lib/ai-classifier";
 
 export async function GET(req: Request) {
   try {
     const admin = await getOptionalAdmin();
-    const mahasiswa = await getOptionalMahasiswa();
+    const mahasiswa = await getOptionalMahasiswa(req);
 
     if (!admin && !mahasiswa) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -25,6 +26,7 @@ export async function GET(req: Request) {
     const status = searchParams.get("status");
     const kategori = searchParams.get("kategori");
     const search = searchParams.get("q")?.trim();
+    const mineOnly = searchParams.get("mine") === "true";
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: any = {};
@@ -34,6 +36,12 @@ export async function GET(req: Request) {
         where.kategori = admin.kategori;
         where.diteruskan = true;
       }
+    }
+
+    // Tab "Aduan Saya" di mobile/web — mahasiswa cuma mau lihat tiket miliknya sendiri.
+    // Tanpa parameter ini, endpoint tetap mengembalikan seluruh aduan (dipakai tab "Seluruh Aduan").
+    if (mineOnly && mahasiswa) {
+      where.mahasiswaId = mahasiswa.id;
     }
 
     if (status) where.status = status;
@@ -84,7 +92,7 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const auth = await requireMahasiswa();
+    const auth = await requireMahasiswa(req);
     if (!auth.ok) return auth.response;
 
     const { kategori, judul, deskripsi, lampiran } = await req.json();
@@ -97,6 +105,11 @@ export async function POST(req: Request) {
 
     const nomorTiket = await generateNomorTiket();
 
+    // Sistem Cerdas: minta AI menilai prioritas & membandingkan kategori pilihan
+    // mahasiswa. Fail-safe — kalau AI tidak merespons, tiket tetap dibuat normal
+    // dengan prioritas default "sedang".
+    const aiResult = await classifyFeedback(judul, deskripsi);
+
     const feedback = await prisma.feedback.create({
       data: {
         nomorTiket,
@@ -105,6 +118,11 @@ export async function POST(req: Request) {
         deskripsi,
         mahasiswaId: auth.payload.id,
         ...(lampiran && { lampiran }),
+        ...(aiResult && {
+          prioritas: aiResult.prioritas,
+          sumberPrioritas: "ai",
+          kategoriSaranAi: aiResult.kategori,
+        }),
       },
       include: { mahasiswa: { select: { nama: true, nim: true } } },
     });

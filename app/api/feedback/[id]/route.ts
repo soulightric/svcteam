@@ -65,12 +65,9 @@ export async function GET(
       return NextResponse.json({ error: "Aduan tidak ditemukan" }, { status: 404 });
     }
 
-    // Mahasiswa cuma boleh lihat aduan miliknya sendiri; admin boleh lihat semua
-    // (pembatasan per-kategori untuk ADMIN biasa sudah ditangani di GET /api/feedback).
-    if (requester.role === "mahasiswa" && feedback.mahasiswaId !== requester.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-    }
-
+    // Semua mahasiswa boleh melihat detail tiket siapapun (tab "Seluruh Aduan" — transparansi
+    // ala forum pengaduan kampus). Ini cuma untuk GET/lihat; ubah (PATCH) dan hapus (DELETE)
+    // tetap dibatasi ke pemilik tiket masing-masing di handler-nya sendiri.
     return NextResponse.json(feedback);
   } catch (error) {
     console.error("GET FEEDBACK DETAIL ERROR:", error);
@@ -230,12 +227,12 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
-    const requester = await getRequester(_req);
+    const requester = await getRequester(req);
     if (!requester) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
