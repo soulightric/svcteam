@@ -235,7 +235,7 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const requester = await getRequester(req);
+    const requester = await getRequester(_req);
     if (!requester) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
