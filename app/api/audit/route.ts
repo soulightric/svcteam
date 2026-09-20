@@ -3,7 +3,7 @@ import { requireAdmin } from "@/lib/api-auth";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(req: Request) {
-  const auth = await requireAdmin({ superOnly: true });
+  const auth = await requireAdmin({ superOnly: true }, req);
   if (!auth.ok) return auth.response;
 
   const url = new URL(req.url);

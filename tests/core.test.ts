@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import { signToken, verifyToken } from "@/lib/auth";
+import { garageKeyFromPublicUrl } from "@/lib/garage";
 import { getClientIp, rateLimit } from "@/lib/rate-limit";
+
+process.env.GARAGE_PUBLIC_BASE_URL = "https://uploads.example.com";
 
 describe("JWT authentication", () => {
   it("round-trips a signed token", async () => {
@@ -44,5 +47,19 @@ describe("rate limiter", () => {
     });
 
     expect(getClientIp(request)).toBe("203.0.113.8");
+  });
+});
+
+describe("Garage attachment URLs", () => {
+  it("extracts the Garage object key from a public URL", () => {
+    const publicBaseUrl = process.env.GARAGE_PUBLIC_BASE_URL;
+    expect(
+      garageKeyFromPublicUrl(`${publicBaseUrl}/svcteam/photo%201.jpg`)
+    ).toBe("svcteam/photo 1.jpg");
+  });
+
+  it("rejects URLs outside the configured Garage public base", () => {
+    expect(garageKeyFromPublicUrl("https://evil.example.com/svcteam/photo.jpg")).toBeNull();
+    expect(garageKeyFromPublicUrl(`${process.env.GARAGE_PUBLIC_BASE_URL}/other/photo.jpg`)).toBeNull();
   });
 });

@@ -9,10 +9,15 @@ type Requester =
   | { role: "mahasiswa"; id: string; nama: string }
   | null;
 
-async function getRequester(): Promise<Requester> {
+async function getRequester(req?: Request): Promise<Requester> {
   const cookieStore = await cookies();
-  const adminToken = cookieStore.get("admin_token")?.value;
+  const adminCookieToken = cookieStore.get("admin_token")?.value;
   const mahasiswaToken = cookieStore.get("mahasiswa_token")?.value;
+  const authHeader = req?.headers.get("authorization");
+  const bearerToken = authHeader?.startsWith("Bearer ")
+    ? authHeader.slice("Bearer ".length)
+    : undefined;
+  const adminToken = adminCookieToken ?? bearerToken;
 
   if (adminToken) {
     const payload = await verifyToken(adminToken);
@@ -30,8 +35,9 @@ async function getRequester(): Promise<Requester> {
       };
     }
   }
-  if (mahasiswaToken) {
-    const payload = await verifyToken(mahasiswaToken);
+  const studentToken = mahasiswaToken ?? bearerToken;
+  if (studentToken) {
+    const payload = await verifyToken(studentToken);
     if (
       payload &&
       payload.role === "mahasiswa" &&
@@ -69,7 +75,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const requester = await getRequester();
+    const requester = await getRequester(_req);
     if (!requester) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -104,7 +110,7 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
-    const requester = await getRequester();
+    const requester = await getRequester(req);
     if (!requester) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

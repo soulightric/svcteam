@@ -8,7 +8,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const auth = await requireAdmin();
+    const auth = await requireAdmin(undefined, _req);
     if (!auth.ok) return auth.response;
 
     const { id } = await params;
@@ -25,7 +25,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const auth = await requireAdmin();
+    const auth = await requireAdmin(undefined, req);
     if (!auth.ok) return auth.response;
 
     const { id } = await params;

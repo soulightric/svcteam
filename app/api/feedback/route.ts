@@ -7,10 +7,12 @@ import {
 } from "@/lib/api-auth";
 import { generateNomorTiket } from "@/lib/ticket";
 import { classifyFeedback } from "@/lib/ai-classifier";
+import { KATEGORI_LIST } from "@/lib/constants";
+import { deleteGarageObject, garageKeyFromPublicUrl } from "@/lib/garage";
 
 export async function GET(req: Request) {
   try {
-    const admin = await getOptionalAdmin();
+    const admin = await getOptionalAdmin(req);
     const mahasiswa = await getOptionalMahasiswa(req);
 
     if (!admin && !mahasiswa) {
@@ -95,12 +97,30 @@ export async function POST(req: Request) {
     const auth = await requireMahasiswa(req);
     if (!auth.ok) return auth.response;
 
-    const { kategori, judul, deskripsi, lampiran } = await req.json();
-    if (!kategori || !judul || !deskripsi) {
+    const body = await req.json();
+    const { kategori, judul, deskripsi, lampiran } = body ?? {};
+    const kategoriValues = KATEGORI_LIST.map((item) => item.value);
+    if (
+      typeof kategori !== "string" ||
+      !kategoriValues.includes(kategori as (typeof kategoriValues)[number]) ||
+      typeof judul !== "string" ||
+      !judul.trim() ||
+      judul.trim().length > 200 ||
+      typeof deskripsi !== "string" ||
+      deskripsi.trim().length < 20 ||
+      deskripsi.trim().length > 5000
+    ) {
       return NextResponse.json(
-        { error: "Semua field wajib diisi" },
+        { error: "Kategori, judul, dan deskripsi tidak valid" },
         { status: 400 }
       );
+    }
+    if (
+      lampiran !== undefined &&
+      lampiran !== null &&
+      (typeof lampiran !== "string" || !garageKeyFromPublicUrl(lampiran))
+    ) {
+      return NextResponse.json({ error: "URL lampiran tidak valid" }, { status: 400 });
     }
 
     const nomorTiket = await generateNomorTiket();
@@ -110,22 +130,32 @@ export async function POST(req: Request) {
     // dengan prioritas default "sedang".
     const aiResult = await classifyFeedback(judul, deskripsi);
 
-    const feedback = await prisma.feedback.create({
-      data: {
-        nomorTiket,
-        kategori,
-        judul,
-        deskripsi,
-        mahasiswaId: auth.payload.id,
-        ...(lampiran && { lampiran }),
-        ...(aiResult && {
-          prioritas: aiResult.prioritas,
-          sumberPrioritas: "ai",
-          kategoriSaranAi: aiResult.kategori,
-        }),
-      },
-      include: { mahasiswa: { select: { nama: true, nim: true } } },
-    });
+    let feedback;
+    try {
+      feedback = await prisma.feedback.create({
+        data: {
+          nomorTiket,
+          kategori,
+          judul: judul.trim(),
+          deskripsi: deskripsi.trim(),
+          mahasiswaId: auth.payload.id,
+          ...(lampiran && { lampiran }),
+          ...(aiResult && {
+            prioritas: aiResult.prioritas,
+            sumberPrioritas: "ai",
+            kategoriSaranAi: aiResult.kategori,
+          }),
+        },
+        include: { mahasiswa: { select: { nama: true, nim: true } } },
+      });
+    } catch (error) {
+      if (typeof lampiran === "string") {
+        void deleteGarageObject(lampiran).catch((cleanupError) =>
+          console.error("POST /api/feedback attachment cleanup:", cleanupError)
+        );
+      }
+      throw error;
+    }
 
     return NextResponse.json(feedback, { status: 201 });
   } catch (error) {

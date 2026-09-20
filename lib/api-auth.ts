@@ -20,13 +20,19 @@ async function getMahasiswaToken(req?: Request): Promise<string | null> {
 }
 
 export async function requireAdmin(
-  options?: { superOnly?: boolean }
+  options?: { superOnly?: boolean },
+  req?: Request
 ): Promise<
   | { ok: true; payload: AdminTokenPayload }
   | { ok: false; response: NextResponse }
 > {
   const cookieStore = await cookies();
-  const token = cookieStore.get("admin_token")?.value;
+  const cookieToken = cookieStore.get("admin_token")?.value;
+  const authHeader = req?.headers.get("authorization");
+  const bearerToken = authHeader?.startsWith("Bearer ")
+    ? authHeader.slice("Bearer ".length)
+    : undefined;
+  const token = cookieToken ?? bearerToken;
   if (!token) {
     return {
       ok: false,
@@ -78,9 +84,14 @@ export async function requireMahasiswa(req?: Request): Promise<
   return { ok: true, payload };
 }
 
-export async function getOptionalAdmin(): Promise<AdminTokenPayload | null> {
+export async function getOptionalAdmin(req?: Request): Promise<AdminTokenPayload | null> {
   const cookieStore = await cookies();
-  const token = cookieStore.get("admin_token")?.value;
+  const cookieToken = cookieStore.get("admin_token")?.value;
+  const authHeader = req?.headers.get("authorization");
+  const bearerToken = authHeader?.startsWith("Bearer ")
+    ? authHeader.slice("Bearer ".length)
+    : undefined;
+  const token = cookieToken ?? bearerToken;
   if (!token) return null;
   const payload = (await verifyToken(token)) as AdminTokenPayload | null;
   if (!payload || (payload.role !== "SUPER_ADMIN" && payload.role !== "ADMIN")) {

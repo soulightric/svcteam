@@ -14,7 +14,7 @@ import { requireAdmin } from "@/lib/api-auth";
  */
 export async function POST(req: Request) {
   try {
-    const auth = await requireAdmin({ superOnly: true });
+    const auth = await requireAdmin({ superOnly: true }, req);
     if (!auth.ok) return auth.response;
 
     const contentType = req.headers.get("content-type") || "";

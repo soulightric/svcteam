@@ -8,7 +8,7 @@ import { requireAdmin } from "@/lib/api-auth";
  */
 export async function GET(req: Request) {
   try {
-    const auth = await requireAdmin();
+    const auth = await requireAdmin(undefined, req);
     if (!auth.ok) return auth.response;
 
     const { searchParams } = new URL(req.url);

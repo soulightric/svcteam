@@ -3,9 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/hash";
 import { requireAdmin } from "@/lib/api-auth";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    const auth = await requireAdmin();
+    const auth = await requireAdmin(undefined, req);
     if (!auth.ok) return auth.response;
 
     const list = await prisma.mahasiswa.findMany({
@@ -26,7 +26,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const auth = await requireAdmin();
+    const auth = await requireAdmin(undefined, req);
     if (!auth.ok) return auth.response;
 
     const { nim, nama, password, email } = await req.json();

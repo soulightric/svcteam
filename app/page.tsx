@@ -38,6 +38,7 @@ export default function HomePage() {
   // Daftar link navigasi
   const navLinks = [
     // { label: "Lacak Aduan", href: "/lacak", blank: false },
+    { label: "Top Aduan", href: "/top", blank: false },
     { label: "Main Web", href: "https://ith.ac.id", blank: true },
     { label: "Easter Egg", href: "https://ilkomith.cloud", blank: true },
   ];

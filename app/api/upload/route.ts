@@ -55,7 +55,14 @@ export async function POST(req: Request) {
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const payload = await verifyToken(token);
-    if (!payload) return NextResponse.json({ error: "Token tidak valid" }, { status: 401 });
+    if (
+      !payload ||
+      (payload.role !== "mahasiswa" &&
+        payload.role !== "ADMIN" &&
+        payload.role !== "SUPER_ADMIN")
+    ) {
+      return NextResponse.json({ error: "Token tidak valid" }, { status: 401 });
+    }
 
     const formData = await req.formData();
     const file = formData.get("file") as File | null;

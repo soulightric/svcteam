@@ -3,8 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/hash";
 import { requireAdmin } from "@/lib/api-auth";
 
-export async function GET() {
-  const auth = await requireAdmin({ superOnly: true });
+export async function GET(req: Request) {
+  const auth = await requireAdmin({ superOnly: true }, req);
   if (!auth.ok) return auth.response;
 
   const admins = await prisma.admin.findMany({
@@ -22,7 +22,7 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const auth = await requireAdmin({ superOnly: true });
+  const auth = await requireAdmin({ superOnly: true }, req);
   if (!auth.ok) return auth.response;
 
   try {

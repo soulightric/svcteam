@@ -4,6 +4,8 @@ import { verifyToken } from "@/lib/auth";
 import { cookies } from "next/headers";
 import { notifyStatusChange } from "@/lib/email";
 import { recordAudit } from "@/lib/audit";
+import { KATEGORI_LIST, STATUS_LIST } from "@/lib/constants";
+import { deleteGarageObject, garageKeyFromPublicUrl } from "@/lib/garage";
 
 type Requester =
   | { role: "admin"; id: string | null; adminRole: string; kategori: string | null }
@@ -110,10 +112,33 @@ export async function PATCH(
         }
       }
 
-      const { status, balasan, diteruskan, lampiranBalasan } = body;
-      const validStatus = ["menunggu", "diterima", "ditolak", "selesai"];
-      if (status && !validStatus.includes(status)) {
+      const { status, balasan, diteruskan, lampiranBalasan } = body ?? {};
+      if (
+        status !== undefined &&
+        (typeof status !== "string" ||
+          !STATUS_LIST.includes(status as (typeof STATUS_LIST)[number]))
+      ) {
         return NextResponse.json({ error: "Status tidak valid" }, { status: 400 });
+      }
+
+      if (
+        balasan !== undefined &&
+        balasan !== null &&
+        (typeof balasan !== "string" || balasan.trim().length > 2000)
+      ) {
+        return NextResponse.json({ error: "Balasan tidak valid" }, { status: 400 });
+      }
+
+      if (
+        lampiranBalasan !== undefined &&
+        lampiranBalasan !== null &&
+        (typeof lampiranBalasan !== "string" ||
+          !garageKeyFromPublicUrl(lampiranBalasan))
+      ) {
+        return NextResponse.json(
+          { error: "URL lampiran balasan tidak valid" },
+          { status: 400 }
+        );
       }
 
       if (diteruskan !== undefined && !isSuper) {
@@ -127,7 +152,9 @@ export async function PATCH(
         where: { id },
         data: {
           ...(status && { status }),
-          ...(balasan !== undefined && { balasan }),
+          ...(balasan !== undefined && {
+            balasan: typeof balasan === "string" ? balasan.trim() : null,
+          }),
           ...(lampiranBalasan !== undefined && { lampiranBalasan }),
           ...(diteruskan !== undefined &&
             isSuper && {
@@ -137,6 +164,16 @@ export async function PATCH(
         },
         include: { mahasiswa: { select: { nama: true, nim: true, email: true } } },
       });
+
+      if (
+        lampiranBalasan !== undefined &&
+        feedback.lampiranBalasan &&
+        feedback.lampiranBalasan !== lampiranBalasan
+      ) {
+        void deleteGarageObject(feedback.lampiranBalasan).catch((cleanupError) =>
+          console.error("PATCH /api/feedback/[id] attachment cleanup:", cleanupError)
+        );
+      }
 
       // Jika admin mengisi balasan, simpan juga sebagai komentar di thread
       if (typeof balasan === "string" && balasan.trim() && requester.id) {
@@ -196,13 +233,42 @@ export async function PATCH(
           { status: 400 }
         );
       }
-      const { kategori, judul, deskripsi } = body;
+      const { kategori, judul, deskripsi } = body ?? {};
+      const kategoriValues = KATEGORI_LIST.map((item) => item.value);
+      if (
+        kategori === undefined &&
+        judul === undefined &&
+        deskripsi === undefined
+      ) {
+        return NextResponse.json({ error: "Tidak ada perubahan" }, { status: 400 });
+      }
+      if (
+        kategori !== undefined &&
+        (typeof kategori !== "string" ||
+          !kategoriValues.includes(kategori as (typeof kategoriValues)[number]))
+      ) {
+        return NextResponse.json({ error: "Kategori tidak valid" }, { status: 400 });
+      }
+      if (
+        judul !== undefined &&
+        (typeof judul !== "string" || !judul.trim() || judul.trim().length > 200)
+      ) {
+        return NextResponse.json({ error: "Judul tidak valid" }, { status: 400 });
+      }
+      if (
+        deskripsi !== undefined &&
+        (typeof deskripsi !== "string" ||
+          deskripsi.trim().length < 20 ||
+          deskripsi.trim().length > 5000)
+      ) {
+        return NextResponse.json({ error: "Deskripsi tidak valid" }, { status: 400 });
+      }
       const updated = await prisma.feedback.update({
         where: { id },
         data: {
           ...(kategori && { kategori }),
-          ...(judul && { judul }),
-          ...(deskripsi && { deskripsi }),
+          ...(judul && { judul: judul.trim() }),
+          ...(deskripsi && { deskripsi: deskripsi.trim() }),
         },
         include: { mahasiswa: { select: { nama: true, nim: true } } },
       });
@@ -277,6 +343,22 @@ export async function DELETE(
       },
     });
     await prisma.feedback.delete({ where: { id } });
+
+    const attachmentUrls = [feedback.lampiran, feedback.lampiranBalasan].filter(
+      (url): url is string => Boolean(url)
+    );
+    const cleanupResults = await Promise.allSettled(
+      attachmentUrls.map((url) => deleteGarageObject(url))
+    );
+    cleanupResults.forEach((result, index) => {
+      if (result.status === "rejected") {
+        console.error("DELETE /api/feedback/[id] attachment cleanup:", {
+          url: attachmentUrls[index],
+          error: result.reason,
+        });
+      }
+    });
+
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ error: "Gagal menghapus aduan" }, { status: 500 });
