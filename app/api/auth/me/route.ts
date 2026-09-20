@@ -2,10 +2,16 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get("mahasiswa_token")?.value;
+    let token = cookieStore.get("mahasiswa_token")?.value;
+    if (!token) {
+      const authHeader = req.headers.get("authorization");
+      if (authHeader?.startsWith("Bearer ")) {
+        token = authHeader.slice("Bearer ".length);
+      }
+    }
     if (!token) return NextResponse.json(null, { status: 401 });
 
     const payload = await verifyToken(token);

@@ -10,10 +10,16 @@ type Requester =
   | { role: "mahasiswa"; id: string }
   | null;
 
-async function getRequester(): Promise<Requester> {
+async function getRequester(req?: Request): Promise<Requester> {
   const cookieStore = await cookies();
   const adminToken = cookieStore.get("admin_token")?.value;
-  const mahasiswaToken = cookieStore.get("mahasiswa_token")?.value;
+  const mahasiswaTokenCookie = cookieStore.get("mahasiswa_token")?.value;
+  const authHeader = req?.headers.get("authorization");
+  const bearerToken = authHeader?.startsWith("Bearer ")
+    ? authHeader.slice("Bearer ".length)
+    : undefined;
+  // Cookie diprioritaskan (web); header dipakai mobile yang tidak punya cookie.
+  const mahasiswaToken = mahasiswaTokenCookie ?? bearerToken;
 
   if (adminToken) {
     const payload = await verifyToken(adminToken);
@@ -39,13 +45,46 @@ async function getRequester(): Promise<Requester> {
   return null;
 }
 
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const requester = await getRequester(req);
+    if (!requester) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
+    const feedback = await prisma.feedback.findUnique({
+      where: { id },
+      include: { mahasiswa: { select: { nama: true, nim: true } } },
+    });
+
+    if (!feedback) {
+      return NextResponse.json({ error: "Aduan tidak ditemukan" }, { status: 404 });
+    }
+
+    // Mahasiswa cuma boleh lihat aduan miliknya sendiri; admin boleh lihat semua
+    // (pembatasan per-kategori untuk ADMIN biasa sudah ditangani di GET /api/feedback).
+    if (requester.role === "mahasiswa" && feedback.mahasiswaId !== requester.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
+
+    return NextResponse.json(feedback);
+  } catch (error) {
+    console.error("GET FEEDBACK DETAIL ERROR:", error);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
+}
+
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
-    const requester = await getRequester();
+    const requester = await getRequester(req);
     if (!requester) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -196,7 +235,7 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const requester = await getRequester();
+    const requester = await getRequester(req);
     if (!requester) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

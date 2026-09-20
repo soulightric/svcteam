@@ -42,11 +42,16 @@ function detectImageType(buf: Buffer): "image/jpeg" | "image/png" | "image/webp"
 
 export async function POST(req: Request) {
   try {
-    // Cek auth: boleh mahasiswa (lampiran aduan) ATAU admin (lampiran balasan/tindak lanjut)
+    // Cek auth: boleh mahasiswa (lampiran aduan) ATAU admin (lampiran balasan/tindak lanjut).
+    // Dukung cookie (web) atau `Authorization: Bearer <token>` (mobile/Expo).
     const cookieStore = await cookies();
     const mahasiswaToken = cookieStore.get("mahasiswa_token")?.value;
     const adminToken = cookieStore.get("admin_token")?.value;
-    const token = mahasiswaToken ?? adminToken;
+    const authHeader = req.headers.get("authorization");
+    const bearerToken = authHeader?.startsWith("Bearer ")
+      ? authHeader.slice("Bearer ".length)
+      : undefined;
+    const token = mahasiswaToken ?? adminToken ?? bearerToken;
     if (!token) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const payload = await verifyToken(token);

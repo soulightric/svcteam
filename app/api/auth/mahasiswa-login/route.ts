@@ -51,7 +51,13 @@ export async function POST(req: Request) {
       role: "mahasiswa",
     });
 
-    const res = NextResponse.json({ success: true, nama: mahasiswa.nama });
+    const res = NextResponse.json({
+      success: true,
+      nama: mahasiswa.nama,
+      // Untuk client mobile (Expo) yang tidak pakai cookie jar seperti browser —
+      // simpan ini di secure storage, kirim sebagai `Authorization: Bearer <token>`.
+      token,
+    });
     res.cookies.set("mahasiswa_token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

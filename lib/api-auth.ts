@@ -2,6 +2,23 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { verifyToken, type AdminTokenPayload, type MahasiswaTokenPayload } from "@/lib/auth";
 
+/**
+ * Ambil token mahasiswa dari cookie (web) ATAU header `Authorization: Bearer <token>`
+ * (mobile/Expo — yang tidak punya cookie jar seperti browser).
+ * Cookie diprioritaskan supaya perilaku web tidak berubah.
+ */
+async function getMahasiswaToken(req?: Request): Promise<string | null> {
+  const cookieStore = await cookies();
+  const cookieToken = cookieStore.get("mahasiswa_token")?.value;
+  if (cookieToken) return cookieToken;
+
+  const authHeader = req?.headers.get("authorization");
+  if (authHeader?.startsWith("Bearer ")) {
+    return authHeader.slice("Bearer ".length);
+  }
+  return null;
+}
+
 export async function requireAdmin(
   options?: { superOnly?: boolean }
 ): Promise<
@@ -38,12 +55,11 @@ export async function requireAdmin(
   return { ok: true, payload };
 }
 
-export async function requireMahasiswa(): Promise<
+export async function requireMahasiswa(req?: Request): Promise<
   | { ok: true; payload: MahasiswaTokenPayload }
   | { ok: false; response: NextResponse }
 > {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("mahasiswa_token")?.value;
+  const token = await getMahasiswaToken(req);
   if (!token) {
     return {
       ok: false,
@@ -73,9 +89,8 @@ export async function getOptionalAdmin(): Promise<AdminTokenPayload | null> {
   return payload;
 }
 
-export async function getOptionalMahasiswa(): Promise<MahasiswaTokenPayload | null> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("mahasiswa_token")?.value;
+export async function getOptionalMahasiswa(req?: Request): Promise<MahasiswaTokenPayload | null> {
+  const token = await getMahasiswaToken(req);
   if (!token) return null;
   const payload = (await verifyToken(token)) as MahasiswaTokenPayload | null;
   if (!payload || payload.role !== "mahasiswa" || typeof payload.id !== "string") {
