@@ -2,250 +2,300 @@
 
 # Student Voice ITH Campus
 
-Platform pengaduan dan feedback fasilitas kampus berbasis web. Mahasiswa yang terdaftar dapat menyampaikan aduan terkait fasilitas kampus, dan admin dapat mengelola serta merespons setiap aduan.
+Platform pengaduan dan feedback fasilitas kampus berbasis web untuk mahasiswa ITH. Sistem ini memungkinkan mahasiswa melaporkan permasalahan fasilitas, sementara admin dapat memantau, menindaklanjuti, dan membalas laporan secara terstruktur.
 
 ---
 
-## Tech Stack
+## Ringkasan Proyek
 
-| Teknologi | Versi | Keterangan |
-|---|---|---|
-| Next.js | 16.2 | Framework utama (App Router) |
-| React | 19 | UI library |
-| Prisma | 5.x | ORM database |
-| PostgreSQL | — | Database (via Supabase) |
-| Tailwind CSS | 4 | Styling |
-| Jose | 6 | JWT authentication |
-| Recharts | 3 | Grafik dashboard |
-| Lucide React | latest | Icon library |
-| garage | latest | Image |
+Project ini dibangun dengan Next.js App Router dan Prisma, serta menggunakan PostgreSQL sebagai basis data utama melalui Supabase. Aplikasi mencakup:
+
+- Portal publik untuk melihat statistik kampus dan akses login
+- Portal mahasiswa untuk mengirim dan memantau aduan
+- Panel admin untuk mengelola aduan, mahasiswa, dan admin
+- Dashboard statistik dengan grafik tren aduan
+- Fitur komentar, notifikasi, dan audit log
+- Upload lampiran ke storage S3-compatible (Garage)
 
 ---
 
-## Fitur
+## Stack Teknologi
 
-### Halaman Publik (`/`)
-- Slider Fotage dari ith langsung
-- Statistik aduan real-time (total, menunggu, diterima, ditolak)
-- Animasi counter angka
-- Tombol login mahasiswa
-- Tombol login admin
+| Teknologi | Versi / Keterangan |
+|---|---|
+| Next.js | 16.x |
+| React | 19.x |
+| TypeScript | 5.x |
+| Prisma | 5.x |
+| PostgreSQL | Supabase Postgres |
+| Tailwind CSS | 4.x |
+| Jose | JWT auth |
+| Recharts | dashboard charts |
+| Lucide React | icon set |
+| bcryptjs | password hashing |
+| Garage / S3-compatible storage | upload lampiran |
+| Vitest | testing |
 
-### Portal Mahasiswa (`/feedback`)
-- Login dengan NIM dan password
-- Informasi Aduan dengan counter
-- Form kirim aduan (kategori, judul, deskripsi, gambar lampiran)
-- Lihat semua aduan beserta status
-- **Search** aduan by judul, nama, atau NIM
-- **Edit** aduan sendiri selama masih berstatus Menunggu
-- **Hapus** aduan sendiri selama masih berstatus Menunggu
-- Filter by status dan kategori
-- Notifikasi
-- Status siapa yang login
+---
 
-### Panel Admin (`/admin`)
-- Login dengan username dan password (superadmin / admin biasa)
-- Tabel aduan lengkap dengan filter status
-- Ubah status aduan (Menunggu → Diterima / Ditolak)
-- Tambahkan balasan atau alasan penolakan
-- Hapus aduan
-- **Tab Kelola Mahasiswa** — tambah, hapus, reset password mahasiswa
-- **Tab Kelola Admin** - tambah admin biasa
-- Search aduan by judul, nama, NIM
+## Fitur Utama
 
-### Dashboard Statistik (`/admin/dashboard`)
-- Line chart tren aduan 6 bulan terakhir
-- Pie chart distribusi status
-- Bar chart aduan per kategori
-- Ringkasan: response rate, acceptance rate, rata-rata aduan per mahasiswa
+### 1. Halaman Publik (`/`)
+- Hero section dan branding kampus
+- Statistik aduan real-time
+- Animasi counter total, menunggu, diterima, ditolak, dan selesai
+- Link login mahasiswa dan admin
+- Menu navigasi publik, top aduan, dan akses ke portal lain
 
-### Kategori Aduan
-Akademik, Perpustakaan, Internet & Teknologi, Kantin, Gedung & Ruang Kelas, Keamanan, Laboratorium, Transportasi & Parkir
+### 2. Portal Mahasiswa (`/login`, `/feedback`)
+- Login menggunakan NIM dan password
+- Melihat daftar aduan sendiri dan seluruh aduan umum sesuai aturan akses
+- Mengirim aduan baru dengan kategori, judul, deskripsi, dan lampiran
+- Melihat status aduan dalam bentuk progres
+- Mengedit atau menghapus aduan yang masih berstatus `menunggu`
+- Filter berdasarkan status dan kategori
+- Komentar thread per aduan
+- Notifikasi dan tampilan status login pengguna
+
+### 3. Panel Admin (`/admin`)
+- Login admin dengan username dan password
+- Role admin: `SUPER_ADMIN` dan `ADMIN`
+- Kelola data aduan: lihat, ubah status, balas, hapus
+- Kelola mahasiswa: tambah, hapus, reset password, import CSV
+- Kelola admin: tambah admin biasa
+- Pencarian aduan berdasarkan judul, nama, dan NIM
+- Sistem komentar untuk komunikasi internal / status update
+
+### 4. Dashboard Statistik (`/admin/dashboard`)
+- Tren aduan dalam 6 bulan terakhir
+- Distribusi status aduan
+- Top kategori aduan
+- Ringkasan statistik: total aduan, response rate, acceptance rate, completion rate, dan rata-rata aduan per mahasiswa
+
+### 5. Fitur Pendukung
+- Unique ticket number: `ADU-YYYY-0001`
+- Follow-up status `menunggu`, `diterima`, `ditolak`, `selesai`
+- Audit log untuk perubahan / aksi penting
+- Upload file ke Garage/S3 compatible
+- AI-based classification for feedback via `lib/ai-classifier.ts`
 
 ---
 
 ## Struktur Direktori
 
-```
-svc.etherthink.xyz/
-├── app
-│   ├── admin
-│   │   ├── dashboard
-│   │   │   └── page.tsx
-│   │   ├── login
-│   │   │   └── page.tsx
-│   │   └── page.tsx
-│   ├── api
-│   │   ├── admin
-│   │   │   └── route.ts
-│   │   ├── auth
-│   │   │   ├── login
-│   │   │   │   ├── route.ts
-│   │   │   │   └── route.ts.bak
-│   │   │   ├── logout
-│   │   │   │   └── route.ts
-│   │   │   ├── mahasiswa-login
-│   │   │   │   └── route.ts
-│   │   │   ├── mahasiswa-logout
-│   │   │   │   └── route.ts
-│   │   │   └── me
-│   │   │       └── route.ts
-│   │   ├── dashboard
-│   │   │   └── route.ts
-│   │   ├── feedback
-│   │   │   ├── [id]
-│   │   │   │   └── route.ts
-│   │   │   └── route.ts
-│   │   ├── mahasiswa
-│   │   │   ├── [id]
-│   │   │   │   └── route.ts
-│   │   │   └── route.ts
-│   │   ├── notifications
-│   │   │   └── route.ts
-│   │   ├── stats
-│   │   │   └── route.ts
-│   │   └── upload
-│   │       └── route.ts
-│   ├── components
-│   │   └── NotificationBell.tsx
-│   ├── favicon.ico
-│   ├── feedback
-│   │   └── page.tsx
-│   ├── globals.css
-│   ├── layout.tsx
-│   ├── login
-│   │   └── page.tsx
-│   └── page.tsx
-├── lib
-│   ├── auth.ts
-│   ├── cloudinary.ts
-│   ├── hash.ts
-│   └── prisma.ts
+```bash
+svcteam/
+├── app/
+│   ├── admin/
+│   │   ├── dashboard/
+│   │   ├── login/
+│   │   └── page.tsx
+│   ├── api/
+│   │   ├── admin/
+│   │   ├── audit/
+│   │   ├── auth/
+│   │   ├── dashboard/
+│   │   ├── export/
+│   │   ├── feedback/
+│   │   ├── health/
+│   │   ├── lacak/
+│   │   ├── mahasiswa/
+│   │   ├── notifications/
+│   │   ├── stats/
+│   │   ├── top/
+│   │   └── upload/
+│   ├── components/
+│   ├── feedback/
+│   ├── lacak/
+│   ├── login/
+│   ├── top/
+│   ├── globals.css
+│   ├── layout.tsx
+│   ├── page.tsx
+│   └── not-found.tsx
+├── lib/
+│   ├── ai-classifier.ts
+│   ├── api-auth.ts
+│   ├── audit.ts
+│   ├── auth.ts
+│   ├── constants.ts
+│   ├── email.ts
+│   ├── garage.ts
+│   ├── hash.ts
+│   ├── prisma.ts
+│   └── rate-limit.ts
+├── prisma/
+│   ├── schema.prisma
+│   ├── seed.mjs
+│   └── migrations/
+├── public/
+│   ├── manifest.json
+│   ├── sw.js
+│   └── template-mahasiswa.csv
+├── tests/
+│   ├── auth.test.ts
+│   ├── core.test.ts
+│   ├── feedback-list.test.ts
+│   └── ticket.test.ts
+├── .env
+├── .env.example
+├── docker-compose.yml
+├── Dockerfile
+├── eslint.config.mjs
 ├── middleware.ts
-├── prisma
-│   └── schema.prisma
-├── public
-│   ├── logo-ith.png
-│   └── logo.png
-└── .env                                # Environment variables
+├── next-env.d.ts
+├── next.config.ts
+├── package.json
+├── postcss.config.mjs
+├── tsconfig.json
+├── vitest.config.mts
+├── README.md
+└── middleware.ts
 ```
 
+---
+
+## Persiapan Environment
+
+Buat file `.env` berdasarkan `.env.example`.
+
+```bash
+cp .env.example .env
+```
+
+Contoh isi `.env`:
+
+```env
+# Database Supabase
+DATABASE_URL="postgresql://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres?pgbouncer=true&sslmode=require"
+DIRECT_URL="postgresql://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:5432/postgres?sslmode=require"
+
+# JWT secret
+JWT_SECRET="ganti-dengan-secret-minimal-32-karakter-acak"
+
+# Seed admin (opsional)
+SEED_ADMIN_PASSWORD="GantiPasswordKuat123!"
+
+# Storage Garage / S3-compatible
+GARAGE_ENDPOINT="https://storage.algorithmics.web.id"
+GARAGE_REGION="garage"
+GARAGE_BUCKET="svc-uploads"
+GARAGE_ACCESS_KEY_ID=""
+GARAGE_SECRET_ACCESS_KEY=""
+GARAGE_PUBLIC_BASE_URL="https://uploads.algorithmics.web.id"
+
+# App URL untuk notifikasi / email
+APP_URL="https://svc.example.com"
+
+# Email via Resend (opsional)
+RESEND_API_KEY=""
+EMAIL_FROM="Student Voice <noreply@example.com>"
+
+NODE_ENV="development"
+```
+
+### Generate JWT secret
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+> Pastikan `JWT_SECRET` minimal 32 karakter agar login berfungsi.
 
 ---
 
 ## Setup Lokal
 
-### 1. Clone dan install dependencies
+### 1. Install dependency
 
 ```bash
-git clone https://github.com/soulightric/svcteam.git
-cd svcteam
 npm install
 ```
 
-### 2. Konfigurasi environment variables
+### 2. Generate Prisma client dan setup database
 
 ```bash
-cp .env.example .env # or add .env
+npx prisma generate
+npx prisma db push
 ```
 
-Isi `.env` dengan nilai yang sesuai:
-
-```env
-# Database Supabase — Transaction mode (port 6543) untuk query normal
-DATABASE_URL="postgresql://postgres:[PASSWORD]@db.xxxx.supabase.co:6543/postgres?pgbouncer=true&sslmode=require"
-
-# Database Supabase — Session mode (port 5432) untuk migrate/push schema
-DIRECT_URL="postgresql://postgres:[PASSWORD]@db.xxxx.supabase.co:5432/postgres?sslmode=require"
-
-# Kredensial admin panel
-ADMIN_USERNAME="admin"
-ADMIN_PASSWORD="passwordkamu"
-
-# Secret key JWT — generate dengan perintah di bawah
-JWT_SECRET="random-string-panjang"
-```
-
-Generate `JWT_SECRET`:
-```bash
-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-```
-
-### 3. Setup database
+Jika ingin mengisi data awal admin/mahasiswa (opsional):
 
 ```bash
-# Generate Prisma client
-npx prisma@5 generate
-
-# Push schema ke Supabase
-npx prisma@5 db push
+npm run seed
 ```
 
-### 4. Jalankan development server
+### 3. Jalankan aplikasi
 
 ```bash
 npm run dev
 ```
 
-Buka [http://localhost:3000](http://localhost:3000)
+Buka:
+
+- http://localhost:3000
 
 ---
 
-## Setup Supabase
+## Testing dan Validasi
 
-1. Buka [supabase.com](https://supabase.com) → buat project baru
-2. Pilih region **Southeast Asia**
+Project menyediakan script berikut:
+
+```bash
+npm run test
+npm run lint
+npm run typecheck
+```
+
+Gunakan ini untuk memeriksa kualitas dan konsistensi sebelum deploy.
+
+---
+
+## Database dan Supabase
+
+1. Buat project baru di [Supabase](https://supabase.com)
+2. Pilih region yang sesuai untuk project Anda
 3. Masuk ke **Project Settings → Database → Connection string**
-4. Salin **Transaction** (port 6543) → isi ke `DATABASE_URL`
-5. Salin **Session** (port 5432) → isi ke `DIRECT_URL`
+4. Ambil connection string untuk:
+   - Transaction pooler (port 6543) → `DATABASE_URL`
+   - Session / direct connection (port 5432) → `DIRECT_URL`
+5. Jalankan Prisma push setelah konfigurasi selesai
 
 ---
 
 ## Deploy ke Vercel
 
-### 1. Push ke GitHub
+### Persiapan
 
 ```bash
 git add .
-git commit -m "initial commit"
-git push
+git commit -m "chore: setup project"
+git push origin main
 ```
 
-### 2. Import project di Vercel
+### Langkah deploy
 
-1. Buka [vercel.com](https://vercel.com) → **New Project**
-2. Import repository dari GitHub
-3. Masuk ke **Settings → Environment Variables**
-4. Tambahkan semua variabel dari `.env`
-5. Klik **Deploy**
+1. Buka [Vercel](https://vercel.com)
+2. Pilih **New Project**
+3. Import repository GitHub
+4. Tambahkan semua variable environment dari `.env`
+5. Jalankan deploy
 
-### Catatan penting
-
-Setiap kali ada **perubahan schema** (`prisma/schema.prisma`), jalankan manual:
-```bash
-npx prisma@5 db push
-```
-Vercel tidak otomatis migrate database.
+> Jika schema Prisma berubah, jalankan `npx prisma db push` secara manual pada lingkungan target.
 
 ---
 
-## Alur Penggunaan
+## Alur Akses Aplikasi
 
+```bash
+/                 → Landing page + statistik publik
+/login            → Login mahasiswa
+/feedback         → Portal aduan mahasiswa
+/admin/login      → Login admin
+/admin            → Kelola aduan dan data mahasiswa
+/admin/dashboard  → Dashboard statistik admin
+/lacak/[nomor]   → Lacak status aduan berdasarkan nomor tiket
 ```
-/                   → Statistik publik + tombol login
-/login              → Login mahasiswa (NIM + password)
-/feedback           → 🔒 Form aduan + daftar aduan
-/admin/login        → Login admin
-/admin              → 🔒 Kelola aduan + kelola mahasiswa
-/admin/dashboard    → 🔒 Dashboard statistik grafik
-```
-
-### Tambah mahasiswa pertama
-
-1. Login ke `/admin` dengan kredensial dari `.env`
-2. Klik tab **Kelola Mahasiswa**
-3. Klik **Tambah Mahasiswa** → isi NIM, nama, password
-4. Mahasiswa sudah bisa login di `/login`
 
 ---
 
@@ -253,10 +303,31 @@ Vercel tidak otomatis migrate database.
 
 | Status | Warna | Keterangan |
 |---|---|---|
-| **Menunggu** | 🟡 Kuning | Aduan baru masuk, belum diproses |
-| **Diterima** | 🔵 Biru | Aduan diterima dan ditindaklanjuti |
-| **Ditolak** | 🔴 Merah | Aduan tidak dapat diproses |
-| **Selesai** | 🟢 Hijau | Aduan telah selesai |
+| `menunggu` | Kuning | Aduan baru masuk dan belum diproses |
+| `diterima` | Biru | Aduan diterima dan sedang ditindaklanjuti |
+| `ditolak` | Merah | Aduan tidak dapat diproses |
+| `selesai` | Hijau | Aduan sudah ditangani dan selesai |
+
+---
+
+## Admin Default
+
+Pada saat project di-seed, admin default dapat dibuat berdasarkan konfigurasi `SEED_ADMIN_PASSWORD` atau variabel admin yang Anda atur di sistem. Pastikan password yang digunakan kuat dan aman.
+
+---
+
+## Catatan Penting
+
+- Aplikasi mengandalkan Prisma database Postgres.
+- Jika ada perubahan pada `prisma/schema.prisma`, jalankan `npx prisma db push`.
+- Untuk upload lampiran, pastikan service Garage/S3 tersedia dan variable `GARAGE_*` telah diisi dengan benar.
+- Notifikasi email bersifat opsional; jika `RESEND_API_KEY` kosong, sistem akan melewati pengiriman email.
+
+---
+
+## Lisensi
+
+Project ini digunakan untuk kebutuhan internal / campus service platform dan belum dipublikasikan dengan lisensi umum.
 
 > Mahasiswa hanya bisa mengedit atau menghapus aduan yang masih berstatus **Menunggu**.
 
